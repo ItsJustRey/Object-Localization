@@ -105,7 +105,7 @@ class Application(Frame):
 
     def destructor(self):
         """ Destroy the root object and release all resources """
-        print("[INFO] closing...")
+        print("[INFO] closing window...")
         self.master.destroy()
         self.vs.release()  # release web camera
         cv2.destroyAllWindows()  # it is not mandatory in this application
