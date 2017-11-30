@@ -1,23 +1,141 @@
 # import the necessary packages
+import argparse
+import os
+from Tkinter import *
 from collections import deque
+
+import cv2
+import imutils
 import matplotlib.pyplot as plt
 import numpy as np
-import argparse
-import imutils
-import cv2
+from PIL import Image
+from PIL import ImageTk
+
+
+class Application(Frame):
+    def __init__(self, master= None):
+        Frame.__init__(self, master)
+        """ Initialize application which uses OpenCV + Tkinter. It displays a video stream in a Tkinter window  """
+
+        # for r in range(6):
+        #     self.master.rowconfigure(r, weight=1)
+        #
+        # for c in range(5):
+        #     self.master.columnconfigure(c, weight=1)
+
+        self.vs = cv2.VideoCapture(0) # capture video frames, 0 is your default video camera
+        self.current_image = None  # current image from the camera
+
+        self.vs1 = cv2.VideoCapture(0) # capture video frames, 0 is your default video camera
+        self.current_image1 = None  # current image from the camera
+
+        Frame1 = Frame(master, width=720, height=480, bg="green")
+        Frame1.pack(fill='none', expand=True, side="left")
+
+        Frame2 = Frame(master, bg="blue")
+        Frame2.pack(side="right")
+
+        self.master.title("Object Localization")  # set window title
+        # self.destructor function gets fired when the window is closed
+        self.master.protocol('WM_DELETE_WINDOW', self.destructor)
+        self.panel = Label(Frame1)  # initialize image panel
+        self.panel.pack(padx=10, pady=10)
+        self.master.config(cursor="arrow")
+
+        self.panel = Label(Frame2)  # initialize image panel
+        self.panel.pack(padx=10, pady=10)
+        self.master.config(cursor="arrow")
+
+
+
+
+
+        # create a button, that when pressed, will take the current frame and save it to file
+        btn2 = Button(self.master, text="Stop", command=self.destructor)
+        btn2.pack(side="bottom", fill="both", expand=False, padx=10, pady=10)
+
+        btn = Button(self.master, text="Start", command=self.take_snapshot)
+        btn.pack(side="bottom", fill="both", expand=False, padx=10, pady=10)
+
+        # start a self.video_loop that constantly pools the video sensor
+        # for the most recently read frame
+        self.video_loop()
+
+
+    def video_loop(self):
+        """ Get frame from the video stream and show it in Tkinter """
+        ok, frame = self.vs.read()  # read frame from video stream
+        frame = cv2.resize(frame, (480, 360))
+        if ok:  # frame captured without any errors
+            key = cv2.waitKey(1000)
+            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
+            self.current_image = Image.fromarray(cv2image)  # convert image for PIL
+            self.current_image = self.current_image.resize([480, 360])
+            imgtk = ImageTk.PhotoImage(image=self.current_image)  # convert image for tkinter
+            self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
+            self.panel.config(image=imgtk)  # show the image
+
+        self.master.after(1, self.video_loop1)  # call the same function after 30 milliseconds
+
+    def video_loop1(self):
+        """ Get frame from the video stream and show it in Tkinter """
+        ok, frame1 = self.vs1.read()  # read frame from video stream
+        frame1 = cv2.resize(frame1, (480, 360))
+        if ok:  # frame captured without any errors
+            key = cv2.waitKey(1000)
+            cv2image = cv2.cvtColor(frame1, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
+            self.current_image1 = Image.fromarray(cv2image)  # convert image for PIL
+            self.current_image1 = self.current_image1.resize([480, 360])
+            imgtk1 = ImageTk.PhotoImage(image=self.current_image)  # convert image for tkinter
+            self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
+            self.panel.config(image=imgtk1)  # show the image
+
+        self.master.after(1, self.video_loop)  # call the same function after 30 milliseconds
+
+
+
+
+
+
+    def take_snapshot(self):
+        """ Take snapshot and save it to the file """
+        os.system('C:\Users\\rishi\PycharmProjects\Track_Obj\obj.py')
+
+
+
+    def destructor(self):
+        """ Destroy the root object and release all resources """
+        print("[INFO] closing...")
+        self.master.destroy()
+        self.vs.release()  # release web camera
+        cv2.destroyAllWindows()  # it is not mandatory in this application
+
+# construct the argument parse and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-o", "--output", default="./",
+                help="path to output directory to store snapshots (default: current folder")
+args = vars(ap.parse_args())
+
+# start the app
+print("[INFO] starting...")
+root = Tk()
+pba = Application(master=root)
+pba.master.mainloop()
+
 
 # Z-Axis stuff
+class Object_Local(Application):
 
-def find_marker(image):
-    # convert the image to grayscale and blue to detect edges
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GuassianBlur(gray, (5,5), 0)
-    edged = cv2.Canny(gray,35,125)
+    def find_marker(image):
+        # convert the image to grayscale and blue to detect edges
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (5,5), 0)
+        edged = cv2.Canny(gray,35,125)
 
-    # find the contours in the edged image
-    (cnts, _) = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APROX_SIMPLE)
-    c = max(cnts, key=cv2.contourArea)
-    return cv2.minAreaRect(c)
+        # find the contours in the edged image
+        (cnts, _) = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APROX_SIMPLE)
+        c = max(cnts, key=cv2.contourArea)
+        return cv2.minAreaRect(c)
 
 def distance_to_camera(knownWidth, focalLength, perWidth):
     #compute and return the distance from the image to camera
@@ -159,10 +277,10 @@ while True:
     # show the movement deltas and the direction of movement on
     # the frame
     cv2.putText(frame, direction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.65, (0, 0, 255), 3)
+                0.65, (0, 0, 255), 3)
     cv2.putText(frame, "dx: {}, dy: {}, dz: {}".format(dX, dY, dZ),
-                        (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.35, (0, 0, 255), 1)
+                (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                0.35, (0, 0, 255), 1)
 
     # show the frame to our screen and increment the frame counter
     cv2.imshow("Frame", frame)
