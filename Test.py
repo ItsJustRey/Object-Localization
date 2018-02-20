@@ -26,14 +26,14 @@ class Application(Frame):
         self.vs = cv2.VideoCapture(0) # capture video frames, 0 is your default video camera
         self.current_image = None  # current image from the camera
 
-        self.vs1 = cv2.VideoCapture(0) # capture video frames, 0 is your default video camera
+        self.vs1 = cv2.VideoCapture(1) # capture video frames, 0 is your default video camera
         self.current_image1 = None  # current image from the camera
 
         Frame1 = Frame(master, width=720, height=480, bg="green")
         Frame1.pack(fill='none', expand=True, side="left")
 
-        Frame2 = Frame(master, bg="blue")
-        Frame2.pack(side="right")
+        Frame2 = Frame(master, width=720, height=480, bg="blue")
+        Frame2.pack(fill='none', expand=True, side="right")
 
         self.master.title("Object Localization")  # set window title
         # self.destructor function gets fired when the window is closed
@@ -51,15 +51,17 @@ class Application(Frame):
 
 
         # create a button, that when pressed, will take the current frame and save it to file
-        btn2 = Button(self.master, text="Stop", command=self.destructor)
+        btn2 = Button(self.master, text="Stop", command=self.take_snapshot)
         btn2.pack(side="bottom", fill="both", expand=False, padx=10, pady=10)
 
-        btn = Button(self.master, text="Start", command=self.take_snapshot)
+        btn = Button(self.master, text="Start", command=self.destructor)
         btn.pack(side="bottom", fill="both", expand=False, padx=10, pady=10)
 
         # start a self.video_loop that constantly pools the video sensor
         # for the most recently read frame
+
         self.video_loop()
+        #self.video_loop1()
 
 
     def video_loop(self):
@@ -75,12 +77,12 @@ class Application(Frame):
             self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk)  # show the image
 
-        self.master.after(1, self.video_loop1)  # call the same function after 30 milliseconds
+        self.master.after(1, self.video_loop)  # call the same function after 30 milliseconds
 
     def video_loop1(self):
         """ Get frame from the video stream and show it in Tkinter """
         ok, frame1 = self.vs1.read()  # read frame from video stream
-        frame1 = cv2.resize(frame1, (480, 360))
+        #frame1 = cv2.resize(frame1, (480, 360))
         if ok:  # frame captured without any errors
             key = cv2.waitKey(1000)
             cv2image = cv2.cvtColor(frame1, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
@@ -90,7 +92,7 @@ class Application(Frame):
             self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk1)  # show the image
 
-        self.master.after(1, self.video_loop)  # call the same function after 30 milliseconds
+        self.master.after(1, self.video_loop1)  # call the same function after 30 milliseconds
 
 
 
@@ -144,13 +146,9 @@ def distance_to_camera(knownWidth, focalLength, perWidth):
 #Known distance and width from reference photo
 KNOWN_DISTANCE = 24.0
 KNOWN_WIDTH = 2.65
-
-#place holder while there is no reference image
-#!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
-#IMAGE_PATHS = [""]
-#image = cv2.imread(IMAGE_PATHS[0])
-#marker = find_marker(image)
 marker = 30
+
+
 #!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
 focalLength = (marker * KNOWN_DISTANCE) / KNOWN_WIDTH
 
@@ -158,7 +156,7 @@ focalLength = (marker * KNOWN_DISTANCE) / KNOWN_WIDTH
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video",
                 help="path to the (optional) video file")
-ap.add_argument("-b", "--buffer", type=int, default=64,
+ap.add_argument("-b", "--buffer", type=int, default=128,
                 help="max buffer size")
 args = vars(ap.parse_args())
 
@@ -168,10 +166,14 @@ args = vars(ap.parse_args())
 greenLower = (29, 86, 6)
 greenUpper = (64, 255, 255)
 pts = deque(maxlen=args["buffer"])
+xArray = []
+yArray = []
+zArray = []
 counter = 0
 (dX, dY, dZ) = (0,0,0)
 direction =""
-
+fig = plt.figure()
+ax = fig.gca(projection='3d')
 # if a video path was not supplied, grab the reference
 # to the webcam
 if not args.get("video", False):
@@ -242,34 +244,20 @@ while True:
 
         # check to see if enough points have been accumulated in
         # the buffer
-        if counter >= 100 and i == 1 and pts[-10] is not None:
+        if counter >= 10 and i == 1 and pts[-10] is not None:
             # compute the difference between the x and y
             # coordinates and re-initialize the direction
             # text variables
-            dX = pts[-20][0] - pts[i][0]
-            dY = pts[-20][1] - pts[i][1]
+            dX = pts[-2][0] - pts[i][0]
+            xArray.append(dX)
+            dY = pts[-2][1] - pts[i][1]
+            yArray.append(dY)
             # get Z-coordinate in inches
-            dZ = inches
+            dZ=inches
+            zArray.append(dZ)
             (dirX, dirY, dirZ) = ("", "", "")
 
-            # ensure there is significant movement in the
-            # x-direction
-            if np.abs(dX) > 20:
-                dirX = "East" if np.sign(dX) == 1 else "West"
 
-            # ensure there is significant movement in the
-            # y-direction
-            if np.abs(dY) > 20:
-                dirY = "North" if np.sign(dY) == 1 else "South"
-
-            # handle when both directions are non-empty
-            if dirX != "" and dirY != "":
-                direction = "{}-{}".format(dirY, dirX)
-
-            # otherwise, only one direction is non-empty
-            else:
-                direction = dirX if dirX != "" else dirY
-                # otherwise, compute the thickness of the line and
             # draw the connecting lines
             thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
             cv2.line(frame, pts[i - 1], pts[i], (0, 0, 255), thickness)
@@ -287,17 +275,27 @@ while True:
     key = cv2.waitKey(1) & 0xFF
     counter += 1
 
-    plt.plot(dX, dY, "ro")
-    plt.xlabel('X-Direction')
-    plt.ylabel('Y-Direction')
+    #plt.plot(dX, dY, "ro")
+    #plt.xlabel('X-Direction')
+    #plt.ylabel('Y-Direction')
 
 
-
+# plot data
+    ax.set_xlim(-255, 255)
+    ax.set_ylim(-255, 255)
+    ax.set_zlim(-255, 255)
+    ax.set_xlabel('X-Direction')
+    ax.set_ylabel('Y-Direction')
+    ax.set_zlabel('Z-Direction')
+    ax.plot(xArray, yArray, zArray, label='Spatial Coordinates')
+    ax.set_color_cycle('black')
+    plt.pause(0.001)
     # if the 'q' key is pressed, stop the loop
     if key == ord("q"):
-        plt.show()
         break
 
 # cleanup the camera and close any open windows
+
+ax.legend()
 camera.release()
 cv2.destroyAllWindows()
