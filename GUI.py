@@ -10,7 +10,12 @@ from PIL import ImageTk
 from mpl_toolkits.mplot3d import Axes3D
 import math
 from matplotlib.figure import Figure
+import matplotlib.animation as animation
+from matplotlib import style
+
 matplotlib.use('TkAgg')
+style.use("ggplot")
+
 
 class GUI(Tk):
     def __init__(self, *args, **kwargs):
@@ -55,7 +60,11 @@ class MainMenu(Frame):
         button_video1 = Button(self, text="Start Video 1", command=lambda: controller.show_frame(VideoWindow1))
         button_video1.pack()
 
+        button_video2 = Button(self, text="Start Video 2", command=lambda: controller.show_frame(VideoWindow2))
+        button_video2.pack()
+
 class VideoWindow0(Frame):
+
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         label = Label(self, text="Video Source 1")
@@ -92,25 +101,39 @@ class VideoWindow0(Frame):
         #a.plot([0,0,0], [1,1,1], [0,0,0] , 'r', label='Spatial Coordinates')
 
 
-        fig = Figure(figsize=(5, 5), dpi=100)
-        a = fig.add_subplot(111)
-        a.plot([1, 2, 3, 4, 5, 6, 7, 8], [5, 6, 1, 3, 8, 9, 3, 5])
+        self.v0_xArray = []
+        self.v0_yArray = []
+        self.v0_zArray = []
+        # fig = Figure(figsize=(5, 5), dpi=100)
+        self.fig = plt.figure()
+        self.ax = plt.axes(projection='3d')
 
-        canvas = FigureCanvasTkAgg(fig, self)
+        self.ax.set_xlabel('X-Direction')
+        self.ax.set_ylabel('Y-Direction')
+        self.ax.set_zlabel('Z-Direction')
+        self.ax.set_xlim(-400, 400)
+        self.ax.set_ylim(-400, 400)
+        self.ax.set_zlim(-400, 400)
+
+        #a.plot([1, 2, 3, 4, 5, 6, 7, 8], [5, 6, 1, 3, 8, 9, 3, 5])
+
+        canvas = FigureCanvasTkAgg(self.fig, self)
         canvas.show()
 
         toolbar = NavigationToolbar2TkAgg(canvas, self)
         toolbar.update()
         canvas.get_tk_widget().pack(side="bottom", fill="both", expand=True)
 
-
-
         self.video_loop0()
+
+
+
+
 
     def video_loop0(self):
         """ Get frame from the video stream and show it in Tkinter """
         isReady, frame0 = self.vs0.read()  # read frame from video stream
-        frame0 = Object_Localization.Object_Localization(frame0)
+        (frame0, self.v0_xArray, self.v0_yArray, self.v0_zArray)  = Object_Localization.Object_Localization(frame0)
 
         if isReady:  # frame captured without any errors
             cv2image = cv2.cvtColor(frame0, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
@@ -120,7 +143,8 @@ class VideoWindow0(Frame):
 
             self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk1)  # show the image
-
+            self.ax.plot(self.v0_xArray, self.v0_yArray, self.v0_zArray, 'r', 'black')
+            plt.pause(0.01)
         self.master.after(1, self.video_loop0)  # call the same function after 30 milliseconds
 
 
@@ -134,7 +158,7 @@ class VideoWindow1(Frame):
         button_back = Button(self, text="Back", command=lambda: controller.show_frame(MainMenu))
         button_back.pack()
 
-        self.vs1 = cv2.VideoCapture(0)
+        self.vs1 = cv2.VideoCapture(1)
         self.current_image1 = None
 
         frame1 = Frame(self, width=1080, height=560, bg="blue")
@@ -164,6 +188,48 @@ class VideoWindow1(Frame):
             self.panel.config(image=imgtk1)  # show the image
 
         self.master.after(1, self.video_loop1)  # call the same function after 30 milliseconds
+
+
+class VideoWindow2(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        label = Label(self, text="Video Source 2")
+        label.pack(pady=10, padx=10)
+
+        button_back = Button(self, text="Back", command=lambda: controller.show_frame(MainMenu))
+        button_back.pack()
+
+        self.vs2 = cv2.VideoCapture(2)
+        self.current_image1 = None
+
+        frame1 = Frame(self, width=1080, height=560, bg="blue")
+        frame1.pack(fill='none', expand=True, side="left")
+
+        self.panel = Label(frame1)  # initialize image panel
+        self.panel.pack(padx=10, pady=10)
+
+        self.panel.pack(side="left", fill="both", expand=True)  # initialize image panel
+        self.master.config(cursor="arrow")
+
+        self.video_loop2()
+
+
+    def video_loop2(self):
+        """ Get frame from the video stream and show it in Tkinter """
+        isReady, frame2 = self.vs2.read()  # read frame from video stream
+        frame2 = Object_Localization.Object_Localization(frame2)
+
+        if isReady:  # frame captured without any errors
+            cv2image = cv2.cvtColor(frame2, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
+            self.current_image1 = Image.fromarray(cv2image)  # convert image for PIL
+            self.current_image1 = self.current_image1.resize([480, 360])
+            imgtk1 = ImageTk.PhotoImage(image=self.current_image1)  # convert image for tkinter
+
+            self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
+            self.panel.config(image=imgtk1)  # show the image
+
+        self.master.after(1, self.video_loop1)  # call the same function after 30 milliseconds
+
 
 
 class VideoWindow0_Plot(Frame):

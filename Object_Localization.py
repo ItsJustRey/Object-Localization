@@ -116,7 +116,7 @@ def Object_Localization(frame):
 
     # return the frame and increment counter
     counter += 1
-    return thisFrame
+    return thisFrame, xArray, yArray, zArray
     # plot data
     #ax.set_xlim(-400, 400)
     #ax.set_ylim(-400, 400)
