@@ -1,12 +1,12 @@
 import argparse
-from collections import deque
+
 
 import cv2
 import imutils
 import numpy as np
 
 
-def Object_Localization(frame):
+def Object_Localization(frame, newPts, newCounter):
 
     def distance_to_camera(knownWidth, focalLength, perWidth):
         # compute and return the distance from the image to camera
@@ -29,11 +29,12 @@ def Object_Localization(frame):
     # list of tracked points
     greenLower = (29, 86, 6)
     greenUpper = (64, 255, 255)
-    pts = deque(maxlen=args["buffer"])
+    pts = newPts
     xArray = []
     yArray = []
     zArray = []
-    counter = 0
+    counter = newCounter
+    inches = 0
     (x, y, z) = (0, 0, 0)
 
     #fig = plt.figure()
@@ -91,6 +92,8 @@ def Object_Localization(frame):
         zArray[:] = []
        # ax.clear()
 
+    print("counter: " + str(counter))
+    print("pts: " + str(len(pts)))
     for i in np.arange(1, len(pts)):
         # if either of the tracked points are None, ignore
         # them
@@ -104,7 +107,7 @@ def Object_Localization(frame):
             # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
             x = pts[-2][0] - pts[i][0]
             y = pts[-2][1] - pts[i][1]
-
+            z = round(inches)
             #xArray.append(x)
             #yArray.append(y)
             #zArray.append(z)
@@ -116,22 +119,4 @@ def Object_Localization(frame):
 
     # return the frame and increment counter
     counter += 1
-    return thisFrame, x, y, inches
-
-    # plot data
-    #ax.set_xlim(-400, 400)
-    #ax.set_ylim(-400, 400)
-    #ax.set_zlim(-400, 400)
-    #ax.plot(xArray, zArray, yArray , 'r', label='Spatial Coordinates')
-    #plt.pause(0.01)
-
-        #if key == ord("q"):
-        #    break
-        #if key == ord("c"):
-        #   xArray[:] = []
-        #    yArray[:] = []
-        #    zArray[:] = []
-        #    ax.clear()
-
-    #camera.release()
-    #cv2.destroyAllWindows()
+    return thisFrame, x, y, z, pts, counter

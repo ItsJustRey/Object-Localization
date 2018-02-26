@@ -1,5 +1,5 @@
 from Tkinter import *
-
+import argparse
 import cv2
 import matplotlib
 import matplotlib.pyplot as plt
@@ -7,9 +7,9 @@ from PIL import Image
 from PIL import ImageTk
 from matplotlib import style
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-
+from mpl_toolkits import mplot3d
 import Object_Localization
-
+from collections import deque
 matplotlib.use('TkAgg')
 style.use("ggplot")
 
@@ -69,8 +69,8 @@ class VideoWindow0(Frame):
 
         button_back = Button(self, text = "Back", command = lambda: controller.show_frame(MainMenu))
         button_back.pack()
-        button_show_plot = Button(self, text="Show Plot", command=lambda: controller.show_frame(VideoWindow0_Plot))
-        button_show_plot.pack()
+        button_start = Button(self, text="Start", command=lambda: self.video_loop0())
+        button_start.pack()
 
         self.vs0 = cv2.VideoCapture(0)
         self.current_image1 = None
@@ -96,14 +96,18 @@ class VideoWindow0(Frame):
         #a.set_zlim(-400, 400)
         #a.legend()
         #a.plot([0,0,0], [1,1,1], [0,0,0] , 'r', label='Spatial Coordinates')
-
-
+        ap = argparse.ArgumentParser()
+        ap.add_argument("-v", "--video", help="path to the (optional) video file")
+        ap.add_argument("-b", "--buffer", type=int, default=128, help="max buffer size")
+        args = vars(ap.parse_args())
         self.v0_xArray = []
         self.v0_yArray = []
         self.v0_zArray = []
         self.v0_x =0
         self.v0_y =0
         self.v0_z =0
+        self.counter = 0
+        self. pts = deque(maxlen=args["buffer"])
         # fig = Figure(figsize=(5, 5), dpi=100)
         self.fig = plt.figure()
         self.ax = plt.axes(projection='3d')
@@ -116,28 +120,21 @@ class VideoWindow0(Frame):
         self.ax.set_zlim(-400, 400)
 
 
-        canvas = FigureCanvasTkAgg(self.fig,self)
-        canvas.show()
+        self.canvas = FigureCanvasTkAgg(self.fig,self)
+        self.canvas.show()
 
-        toolbar = NavigationToolbar2TkAgg(canvas, self)
+        toolbar = NavigationToolbar2TkAgg(self.canvas, self)
         toolbar.update()
-        canvas.get_tk_widget().pack(side="bottom", fill="both", expand=True)
-        self.video_loop0()
-
-
-
-
+        self.canvas.get_tk_widget().pack(side="bottom", fill="both", expand=True)
+        #self.video_loop0()
 
     def video_loop0(self):
         """ Get frame from the video stream and show it in Tkinter """
         isReady, frame0 = self.vs0.read()  # read frame from video stream
-        (frame0, self.v0_x, self.v0_y, self.v0_z) = Object_Localization.Object_Localization(frame0)
+        (frame0, self.v0_x, self.v0_y, self.v0_z, self.pts, self.counter) = Object_Localization.Object_Localization(frame0, self.pts, self.counter)
         self.v0_xArray.append(self.v0_x)
         self.v0_yArray.append(self.v0_y)
         self.v0_zArray.append(self.v0_z)
-
-
-
 
         if isReady:  # frame captured without any errors
             cv2image = cv2.cvtColor(frame0, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
@@ -148,9 +145,10 @@ class VideoWindow0(Frame):
             self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk1)  # show the image
             self.ax.plot(self.v0_xArray, self.v0_yArray, self.v0_zArray, 'black')
-            self.master.after(1, self.video_loop0)  # call the same function after 30 milliseconds
+            self.canvas.draw()
 
-        #self.fig.plt.pause(.001)
+        self.master.after(30, self.video_loop0)  # call the same function after 30 milliseconds
+
 
 
 
