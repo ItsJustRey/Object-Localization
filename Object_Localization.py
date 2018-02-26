@@ -1,9 +1,10 @@
 import argparse
 from collections import deque
+
 import cv2
 import imutils
-import matplotlib.pyplot as plt
 import numpy as np
+
 
 def Object_Localization(frame):
 
@@ -103,11 +104,10 @@ def Object_Localization(frame):
             # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
             x = pts[-2][0] - pts[i][0]
             y = pts[-2][1] - pts[i][1]
-            z = round(inches)
 
-            xArray.append(x)
-            yArray.append(y)
-            zArray.append(z)
+            #xArray.append(x)
+            #yArray.append(y)
+            #zArray.append(z)
 
             # draw the connecting lines
             thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
@@ -116,7 +116,8 @@ def Object_Localization(frame):
 
     # return the frame and increment counter
     counter += 1
-    return thisFrame, xArray, yArray, zArray
+    return thisFrame, x, y, inches
+
     # plot data
     #ax.set_xlim(-400, 400)
     #ax.set_ylim(-400, 400)

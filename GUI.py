@@ -1,17 +1,14 @@
-import Object_Localization
-import cv2
-import numpy as np
 from Tkinter import *
+
+import cv2
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from PIL import Image
 from PIL import ImageTk
-from mpl_toolkits.mplot3d import Axes3D
-import math
-from matplotlib.figure import Figure
-import matplotlib.animation as animation
 from matplotlib import style
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+
+import Object_Localization
 
 matplotlib.use('TkAgg')
 style.use("ggplot")
@@ -44,7 +41,7 @@ class GUI(Tk):
     def destructor(self):
         print("[INFO] closing window...")
         self.master.destroy()
-        self.vs1.release()
+        self.vs0.release()
         cv2.destroyAllWindows()
 
 class MainMenu(Frame):
@@ -75,7 +72,7 @@ class VideoWindow0(Frame):
         button_show_plot = Button(self, text="Show Plot", command=lambda: controller.show_frame(VideoWindow0_Plot))
         button_show_plot.pack()
 
-        self.vs0 = cv2.VideoCapture(1)
+        self.vs0 = cv2.VideoCapture(0)
         self.current_image1 = None
 
         frame0 = Frame(self, width=1080, height=560, bg="blue")
@@ -104,6 +101,9 @@ class VideoWindow0(Frame):
         self.v0_xArray = []
         self.v0_yArray = []
         self.v0_zArray = []
+        self.v0_x =0
+        self.v0_y =0
+        self.v0_z =0
         # fig = Figure(figsize=(5, 5), dpi=100)
         self.fig = plt.figure()
         self.ax = plt.axes(projection='3d')
@@ -115,15 +115,13 @@ class VideoWindow0(Frame):
         self.ax.set_ylim(-400, 400)
         self.ax.set_zlim(-400, 400)
 
-        #a.plot([1, 2, 3, 4, 5, 6, 7, 8], [5, 6, 1, 3, 8, 9, 3, 5])
 
-        canvas = FigureCanvasTkAgg(self.fig, self)
+        canvas = FigureCanvasTkAgg(self.fig,self)
         canvas.show()
 
         toolbar = NavigationToolbar2TkAgg(canvas, self)
         toolbar.update()
         canvas.get_tk_widget().pack(side="bottom", fill="both", expand=True)
-
         self.video_loop0()
 
 
@@ -133,7 +131,13 @@ class VideoWindow0(Frame):
     def video_loop0(self):
         """ Get frame from the video stream and show it in Tkinter """
         isReady, frame0 = self.vs0.read()  # read frame from video stream
-        (frame0, self.v0_xArray, self.v0_yArray, self.v0_zArray)  = Object_Localization.Object_Localization(frame0)
+        (frame0, self.v0_x, self.v0_y, self.v0_z) = Object_Localization.Object_Localization(frame0)
+        self.v0_xArray.append(self.v0_x)
+        self.v0_yArray.append(self.v0_y)
+        self.v0_zArray.append(self.v0_z)
+
+
+
 
         if isReady:  # frame captured without any errors
             cv2image = cv2.cvtColor(frame0, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
@@ -143,9 +147,12 @@ class VideoWindow0(Frame):
 
             self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk1)  # show the image
-            self.ax.plot(self.v0_xArray, self.v0_yArray, self.v0_zArray, 'r', 'black')
-            plt.pause(0.01)
-        self.master.after(1, self.video_loop0)  # call the same function after 30 milliseconds
+            self.ax.plot(self.v0_xArray, self.v0_yArray, self.v0_zArray, 'black')
+            self.master.after(1, self.video_loop0)  # call the same function after 30 milliseconds
+
+        #self.fig.plt.pause(.001)
+
+
 
 
 
