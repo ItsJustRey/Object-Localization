@@ -30,9 +30,6 @@ def Object_Localization(frame, newPts, newCounter):
     greenLower = (29, 86, 6)
     greenUpper = (64, 255, 255)
     pts = newPts
-    xArray = []
-    yArray = []
-    zArray = []
     counter = newCounter
     inches = 0
     (x, y, z) = (0, 0, 0)
@@ -47,6 +44,7 @@ def Object_Localization(frame, newPts, newCounter):
     # resize the frame, blur it, and convert it to the HSV
     # color space
     thisFrame = imutils.resize(frame, width=600)
+    blurred = cv2.GaussianBlur(thisFrame, (11, 11), 0)
     hsv = cv2.cvtColor(thisFrame, cv2.COLOR_BGR2HSV)
 
     # construct a mask for the color "green", then perform
@@ -62,7 +60,7 @@ def Object_Localization(frame, newPts, newCounter):
 
     # and initialize center of the ball
     center = None
-
+    isDetected = False
     # only proceed if at least one contour was found
     if len(cnts) > 0:
         # find the largest contour in the mask, then use
@@ -78,39 +76,31 @@ def Object_Localization(frame, newPts, newCounter):
         inches = distance_to_camera(KNOWN_WIDTH, focalLength, marker[1][0])
 
         # only proceed if the radius meets a minimum size
-        if radius > 2:
+        if radius > 4:
             # draw the circle and centroid on the frame,
             # then update the list of tracked points
             cv2.circle(thisFrame, (int(x), int(y)), int(radius),
                        (0, 255, 255), 2)
             cv2.circle(thisFrame, center, 5, (0, 0, 255), -1)
             pts.appendleft(center)
+            isDetected = True
+        else:
+            isDetected = False
 
-    else:
-        xArray[:] = []
-        yArray[:] = []
-        zArray[:] = []
-       # ax.clear()
-
-    print("counter: " + str(counter))
-    print("pts: " + str(len(pts)))
+    #print("counter: " + str(counter))
+    #print("pts: " + str(len(pts)))
     for i in np.arange(1, len(pts)):
         # if either of the tracked points are None, ignore
-        # them
         if pts[i - 1] is None or pts[i] is None:
             continue
 
         # check to see if enough points have been accumulated in
         # the buffer
-        if counter >= 10 and i == 1 and pts[-10] is not None:
-
+        if counter >= 10 and i == 1 and pts[-2] is not None:
             # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
             x = pts[-2][0] - pts[i][0]
             y = pts[-2][1] - pts[i][1]
             z = round(inches)
-            #xArray.append(x)
-            #yArray.append(y)
-            #zArray.append(z)
 
             # draw the connecting lines
             thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
@@ -119,4 +109,4 @@ def Object_Localization(frame, newPts, newCounter):
 
     # return the frame and increment counter
     counter += 1
-    return thisFrame, x, y, z, pts, counter
+    return thisFrame, x, y, z, pts, counter, isDetected

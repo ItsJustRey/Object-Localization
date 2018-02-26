@@ -13,7 +13,6 @@ from collections import deque
 matplotlib.use('TkAgg')
 style.use("ggplot")
 
-
 class GUI(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
@@ -51,14 +50,9 @@ class MainMenu(Frame):
         label = Label(self, text = "Main Menu")
         label.pack(pady = 10, padx = 10)
 
-        button_video0 = Button(self, text = "Start Video 0", command = lambda: controller.show_frame(VideoWindow0))
-        button_video0.pack()
-
-        button_video1 = Button(self, text="Start Video 1", command=lambda: controller.show_frame(VideoWindow1))
-        button_video1.pack()
-
-        button_video2 = Button(self, text="Start Video 2", command=lambda: controller.show_frame(VideoWindow2))
-        button_video2.pack()
+        button_video0 = Button(self, text = "Video 0",command = lambda: controller.show_frame(VideoWindow0)).pack()
+        button_video1 = Button(self, text="Video 1", command=lambda: controller.show_frame(VideoWindow1)).pack()
+        button_video2 = Button(self, text="Video 2", command=lambda: controller.show_frame(VideoWindow2)).pack()
 
 class VideoWindow0(Frame):
 
@@ -67,15 +61,14 @@ class VideoWindow0(Frame):
         label = Label(self, text="Video Source 1")
         label.pack(pady=10, padx=10)
 
-        button_back = Button(self, text = "Back", command = lambda: controller.show_frame(MainMenu))
-        button_back.pack()
-        button_start = Button(self, text="Start", command=lambda: self.video_loop0())
-        button_start.pack()
+        btn_back = Button(self, text = "Back", command = lambda: controller.show_frame(MainMenu)).pack()
+        btn_start = Button(self, text= "Start", command=lambda: self.v0_loop()).pack()
+        btn_clear = Button(self, text="Clear", command=lambda: self.v0_clear()).pack()
 
         self.vs0 = cv2.VideoCapture(0)
         self.current_image1 = None
-
-        frame0 = Frame(self, width=1080, height=560, bg="blue")
+        self.isDetected = False
+        frame0 = Frame(self, width=1920, height= 1080, bg="gray")
         frame0.pack(fill='none', expand=True, side="left")
 
         self.panel = Label(frame0)  # initialize image panel
@@ -84,57 +77,41 @@ class VideoWindow0(Frame):
         self.panel.pack(side = "left", fill="both", expand=True)  # initialize image panel
         self.master.config(cursor="arrow")
 
-        #fig = Figure(figsize=(5, 5), dpi=100)
-        #a = fig.add_subplot(111)
-        #a = fig.gca(projection='3d')
-        #ax = fig.gca(projection='3d')
-        #a.set_xlabel('X-Direction')
-        #a.set_ylabel('Y-Direction')
-        #a.set_zlabel('Z-Direction')
-        #a.set_xlim(-400, 400)
-        #a.set_ylim(-400, 400)
-        #a.set_zlim(-400, 400)
-        #a.legend()
-        #a.plot([0,0,0], [1,1,1], [0,0,0] , 'r', label='Spatial Coordinates')
+
         ap = argparse.ArgumentParser()
         ap.add_argument("-v", "--video", help="path to the (optional) video file")
         ap.add_argument("-b", "--buffer", type=int, default=128, help="max buffer size")
-        args = vars(ap.parse_args())
-        self.v0_xArray = []
-        self.v0_yArray = []
-        self.v0_zArray = []
-        self.v0_x =0
-        self.v0_y =0
-        self.v0_z =0
-        self.counter = 0
-        self. pts = deque(maxlen=args["buffer"])
-        # fig = Figure(figsize=(5, 5), dpi=100)
+        self.args = vars(ap.parse_args())
+
+
+
         self.fig = plt.figure()
         self.ax = plt.axes(projection='3d')
+        self.v0_clear()
 
-        self.ax.set_xlabel('X-Direction')
-        self.ax.set_ylabel('Y-Direction')
-        self.ax.set_zlabel('Z-Direction')
-        self.ax.set_xlim(-400, 400)
-        self.ax.set_ylim(-400, 400)
-        self.ax.set_zlim(-400, 400)
-
-
-        self.canvas = FigureCanvasTkAgg(self.fig,self)
+        self.canvas = FigureCanvasTkAgg(self.fig, self)
         self.canvas.show()
 
         toolbar = NavigationToolbar2TkAgg(self.canvas, self)
         toolbar.update()
-        self.canvas.get_tk_widget().pack(side="bottom", fill="both", expand=True)
-        #self.video_loop0()
+        self.canvas.get_tk_widget().pack(side="right", fill="both", expand=True)
 
-    def video_loop0(self):
+
+
+
+    def v0_loop(self):
         """ Get frame from the video stream and show it in Tkinter """
         isReady, frame0 = self.vs0.read()  # read frame from video stream
-        (frame0, self.v0_x, self.v0_y, self.v0_z, self.pts, self.counter) = Object_Localization.Object_Localization(frame0, self.pts, self.counter)
-        self.v0_xArray.append(self.v0_x)
-        self.v0_yArray.append(self.v0_y)
-        self.v0_zArray.append(self.v0_z)
+        (frame0, self.v0_x, self.v0_y, self.v0_z, self.pts, self.counter, self.isDetected) = Object_Localization.Object_Localization(frame0, self.pts, self.counter)
+
+        if(self.isDetected):
+
+            if (len(self.pts) > 10):
+                self.v0_xArray.append(self.v0_x)
+                self.v0_yArray.append(self.v0_y)
+                self.v0_zArray.append(self.v0_z)
+        else:
+            self.v0_clear()
 
         if isReady:  # frame captured without any errors
             cv2image = cv2.cvtColor(frame0, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
@@ -144,13 +121,30 @@ class VideoWindow0(Frame):
 
             self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk1)  # show the image
-            self.ax.plot(self.v0_xArray, self.v0_yArray, self.v0_zArray, 'black')
-            self.canvas.draw()
-
-        self.master.after(30, self.video_loop0)  # call the same function after 30 milliseconds
 
 
+            self.ax.plot(self.v0_xArray,  self.v0_zArray, self.v0_yArray,'black')
+            self.canvas.draw_idle()
 
+        self.master.after(1, self.v0_loop)  # call the same function after 30 milliseconds
+
+    def v0_clear(self):
+        self.v0_xArray = []
+        self.v0_yArray = []
+        self.v0_zArray = []
+        self.v0_x = None
+        self.v0_y = None
+        self.v0_z = None
+        self.counter = 0
+        self.pts = deque(maxlen=self.args["buffer"])
+        self.ax.clear()
+        self.ax.set_xlabel('X-Direction')
+        self.ax.set_ylabel('Y-Direction')
+        self.ax.set_zlabel('Z-Direction')
+        self.ax.set_xlim(-300, 300)
+        self.ax.set_ylim(-300, 300)
+        self.ax.set_zlim(-300, 300)
+        return
 
 
 
@@ -194,7 +188,6 @@ class VideoWindow1(Frame):
 
         self.master.after(1, self.video_loop1)  # call the same function after 30 milliseconds
 
-
 class VideoWindow2(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -234,8 +227,6 @@ class VideoWindow2(Frame):
             self.panel.config(image=imgtk1)  # show the image
 
         self.master.after(1, self.video_loop1)  # call the same function after 30 milliseconds
-
-
 
 class VideoWindow0_Plot(Frame):
 
