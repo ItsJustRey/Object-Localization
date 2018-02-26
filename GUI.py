@@ -64,6 +64,9 @@ class VideoWindow0(Frame):
         btn_back = Button(self, text = "Back", command = lambda: controller.show_frame(MainMenu)).pack()
         btn_start = Button(self, text= "Start", command=lambda: self.v0_loop()).pack()
         btn_clear = Button(self, text="Clear", command=lambda: self.v0_clear()).pack()
+        btn_start = Button(self, text="Save", command=lambda: self.v0_save()).pack()
+
+
 
         self.vs0 = cv2.VideoCapture(0)
         self.current_image1 = None
@@ -146,6 +149,9 @@ class VideoWindow0(Frame):
         self.ax.set_zlim(-300, 300)
         return
 
+    def v0_save(self):
+
+        return
 
 
 class VideoWindow1(Frame):
