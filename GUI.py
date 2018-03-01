@@ -18,7 +18,7 @@ class GUI(Tk):
         Tk.__init__(self, *args, **kwargs)
 
         Tk.wm_title(self, "Object Localization")
-
+        self.state('zoomed')
         container = Frame(self)
         container.pack(side = "top", fill = "both", expand = True)
         container.grid_rowconfigure(0, weight = 1)
@@ -50,38 +50,58 @@ class MainMenu(Frame):
         label = Label(self, text = "Main Menu")
         label.pack(pady = 10, padx = 10)
 
-        button_video0 = Button(self, text = "Video Source 0",command = lambda: controller.show_frame(VideoWindow0)).pack()
-        button_video1 = Button(self, text="Video Source 1", command=lambda: controller.show_frame(VideoWindow1)).pack()
-        button_video2 = Button(self, text="Video Source 2", command=lambda: controller.show_frame(VideoWindow2)).pack()
+        button_view_video = Button(self, pady = 10, padx = 10, text = "View Video",command = lambda: controller.show_frame(VideoWindow0)).pack()
+        button_saved_results = Button(self, pady = 10, padx = 10, text="Saved Results", command=lambda: controller.show_frame(VideoWindow1)).pack()
+        #button_video2 = Button(self, text="Video Source 2", command=lambda: controller.show_frame(VideoWindow2)).pack()
 
 class VideoWindow0(Frame):
 
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
-        label = Label(self, text="Video Source 1")
+        label = Label(self, text="Video Stream")
         label.pack(pady=10, padx=10)
+        btn_back = Button(self, pady=10, padx=10, text = "Back", command = lambda: controller.show_frame(MainMenu)).pack(side = "top")
+        btn_start = Button(self, pady=10, padx=10, text= "Start", command=lambda: self.v0_loop()).pack(side = "top")
+        btn_clear = Button(self, pady=10, padx=10, text="Clear", command=lambda: self.v0_clear()).pack(side = "top")
+        btn_start = Button(self, pady=10, padx=10, text="Save", command=lambda: self.v0_save()).pack(side = "top")
 
-        btn_back = Button(self, text = "Back", command = lambda: controller.show_frame(MainMenu)).pack()
-        btn_start = Button(self, text= "Start", command=lambda: self.v0_loop()).pack()
-        btn_clear = Button(self, text="Clear", command=lambda: self.v0_clear()).pack()
-        btn_start = Button(self, text="Save", command=lambda: self.v0_save()).pack()
-
+        #label.grid(column=2, row=0)
+        #btn_back = Button(self, text = "Back", command = lambda: controller.show_frame(MainMenu)).grid(column=1, row=1)
+        #btn_start = Button(self, text= "Start", command=lambda: self.v0_loop()).grid(column=2, row=1)
+        #btn_clear = Button(self, text="Clear", command=lambda: self.v0_clear()).grid(column=3, row=1)
+        #btn_start = Button(self, text="Save", command=lambda: self.v0_save()).grid(column=4, row=1)
 
 
         self.vs0 = cv2.VideoCapture(0)
         self.current_image1 = None
         self.isDetected = False
-        frame0 = Frame(self, width=1920, height= 1080, bg="gray")
-        frame0.pack(fill='none', expand=True, side="left")
+        frame0 = Frame(self, width=400, height= 300, bg="red")
+        frame0.pack(side="left")
+        #frame0.grid(column=1, row=2)
+        frame1 = Frame(self, width=400, height=300, bg="blue")
+        frame1.pack(side="left")
+        #frame1.grid(column=2, row=2)
+        frame2 = Frame(self, width=400, height=300, bg="green")
+        frame2.pack(side="left")
+        #frame2.grid(column=3, row=2)
+
+        self.panel0 = Label(frame0)
+        #self.panel0.grid(column=1, row=1)
+        self.panel0.pack(padx=5, pady=5)
+        self.panel0.pack(side="left", anchor = "w")
+
+        self.panel1 = Label(frame1)
+        #self.panel1.grid(column=2, row=1)
+        self.panel1.pack(padx=5, pady=5)
+        self.panel1.pack(side="left", anchor = "w")
+
+        self.panel2 = Label(frame2)  # initialize image panel
+        #self.panel2.grid(column=3, row=1)
+        self.panel2.pack(padx=5, pady=5)
+        self.panel2.pack(side="left", anchor = "w")  # initialize image panel
 
 
-
-        self.panel = Label(frame0)  # initialize image panel
-        self.panel.pack(padx=10, pady=10)
-
-        self.panel.pack(side = "left", fill="both", expand=True)  # initialize image panel
         self.master.config(cursor="arrow")
-
 
         ap = argparse.ArgumentParser()
         ap.add_argument("-v", "--video", help="path to the (optional) video file")
@@ -95,12 +115,12 @@ class VideoWindow0(Frame):
         self.v0_clear()
 
         self.canvas = FigureCanvasTkAgg(self.fig, self)
-        self.canvas.show()
 
+        self.canvas.show()
         toolbar = NavigationToolbar2TkAgg(self.canvas, self)
         toolbar.update()
-        self.canvas.get_tk_widget().pack(side="right", fill="both", expand=True)
-
+        self.canvas.get_tk_widget().pack(side="top", anchor = "n")
+        #self.canvas.get_tk_widget().grid(column=2, row=3)
 
 
 
@@ -122,17 +142,23 @@ class VideoWindow0(Frame):
         if isReady:  # frame captured without any errors
             cv2image = cv2.cvtColor(frame0, cv2.COLOR_BGR2RGBA)  # convert colors from BGR to RGBA
             self.current_image1 = Image.fromarray(cv2image)  # convert image for PIL
-            self.current_image1 = self.current_image1.resize([480, 360])
+            #self.current_image1 = self.current_image1.resize([480, 360])
+            self.current_image1 = self.current_image1.resize([320, 240])
             imgtk1 = ImageTk.PhotoImage(image=self.current_image1)  # convert image for tkinter
 
-            self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
-            self.panel.config(image=imgtk1)  # show the image
+            self.panel0.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
+            self.panel0.config(image=imgtk1)  # show the image
+
+            self.panel1.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
+            self.panel1.config(image=imgtk1)  # show the image
+
+            self.panel2.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
+            self.panel2.config(image=imgtk1)  # show the image
 
             self.ax.plot(self.v0_xArray, self.v0_zArray, self.v0_yArray, 'black')
             self.canvas.draw_idle()
 
-
-        self.master.after(17, self.v0_loop)  # call the same function after 30 milliseconds
+        self.master.after(33, self.v0_loop)  # call the same function after 30 milliseconds
 
     def v0_clear(self):
         self.v0_xArray = []
