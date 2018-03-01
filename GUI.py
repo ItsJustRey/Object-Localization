@@ -50,9 +50,9 @@ class MainMenu(Frame):
         label = Label(self, text = "Main Menu")
         label.pack(pady = 10, padx = 10)
 
-        button_video0 = Button(self, text = "Video 0",command = lambda: controller.show_frame(VideoWindow0)).pack()
-        button_video1 = Button(self, text="Video 1", command=lambda: controller.show_frame(VideoWindow1)).pack()
-        button_video2 = Button(self, text="Video 2", command=lambda: controller.show_frame(VideoWindow2)).pack()
+        button_video0 = Button(self, text = "Video Source 0",command = lambda: controller.show_frame(VideoWindow0)).pack()
+        button_video1 = Button(self, text="Video Source 1", command=lambda: controller.show_frame(VideoWindow1)).pack()
+        button_video2 = Button(self, text="Video Source 2", command=lambda: controller.show_frame(VideoWindow2)).pack()
 
 class VideoWindow0(Frame):
 
@@ -73,6 +73,8 @@ class VideoWindow0(Frame):
         self.isDetected = False
         frame0 = Frame(self, width=1920, height= 1080, bg="gray")
         frame0.pack(fill='none', expand=True, side="left")
+
+
 
         self.panel = Label(frame0)  # initialize image panel
         self.panel.pack(padx=10, pady=10)
@@ -113,6 +115,7 @@ class VideoWindow0(Frame):
                 self.v0_xArray.append(self.v0_x)
                 self.v0_yArray.append(self.v0_y)
                 self.v0_zArray.append(self.v0_z)
+
         else:
             self.v0_clear()
 
@@ -125,11 +128,11 @@ class VideoWindow0(Frame):
             self.panel.imgtk1 = imgtk1  # anchor imgtk so it does not be deleted by garbage-collector
             self.panel.config(image=imgtk1)  # show the image
 
-
-            self.ax.plot(self.v0_xArray,  self.v0_zArray, self.v0_yArray,'black')
+            self.ax.plot(self.v0_xArray, self.v0_zArray, self.v0_yArray, 'black')
             self.canvas.draw_idle()
 
-        self.master.after(1, self.v0_loop)  # call the same function after 30 milliseconds
+
+        self.master.after(17, self.v0_loop)  # call the same function after 30 milliseconds
 
     def v0_clear(self):
         self.v0_xArray = []

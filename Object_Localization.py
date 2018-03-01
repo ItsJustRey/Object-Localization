@@ -27,7 +27,7 @@ def Object_Localization(frame, newPts, newCounter):
     # define the lower and upper boundaries of the "green"
     # ball in the HSV color space, then initialize the
     # list of tracked points
-    greenLower = (29, 86, 6)
+    greenLower =  (29, 86, 6)
     greenUpper = (64, 255, 255)
     pts = newPts
     counter = newCounter
@@ -44,7 +44,7 @@ def Object_Localization(frame, newPts, newCounter):
     # resize the frame, blur it, and convert it to the HSV
     # color space
     thisFrame = imutils.resize(frame, width=600)
-    blurred = cv2.GaussianBlur(thisFrame, (11, 11), 0)
+    blurredFrame = cv2.GaussianBlur(thisFrame, (11, 11), 0)
     hsv = cv2.cvtColor(thisFrame, cv2.COLOR_BGR2HSV)
 
     # construct a mask for the color "green", then perform
@@ -76,9 +76,8 @@ def Object_Localization(frame, newPts, newCounter):
         inches = distance_to_camera(KNOWN_WIDTH, focalLength, marker[1][0])
 
         # only proceed if the radius meets a minimum size
-        if radius > 6:
-            # draw the circle and centroid on the frame,
-            # then update the list of tracked points
+        if radius > 10:
+            # draw the circle and centroid on the frame
             cv2.circle(thisFrame, (int(x), int(y)), int(radius),
                        (0, 255, 255), 2)
             cv2.circle(thisFrame, center, 5, (0, 0, 255), -1)
@@ -87,8 +86,7 @@ def Object_Localization(frame, newPts, newCounter):
         else:
             isDetected = False
 
-    #print("counter: " + str(counter))
-    #print("pts: " + str(len(pts)))
+
     for i in np.arange(1, len(pts)):
         # if either of the tracked points are None, ignore
         if pts[i - 1] is None or pts[i] is None:
@@ -96,17 +94,18 @@ def Object_Localization(frame, newPts, newCounter):
 
         # check to see if enough points have been accumulated in
         # the buffer
-        if counter >= 10 and i == 1 and pts[-2] is not None:
+        if counter >= 10 and i == 1 and pts[-10] is not None:
             # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
-            x = pts[-2][0] - pts[i][0]
-            y = pts[-2][1] - pts[i][1]
+            x = pts[-10][0] - pts[i][0]
+            y = pts[-10][1] - pts[i][1]
             z = round(inches)
 
             # draw the connecting lines
-            thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
+            thickness = int(np.sqrt(args["buffer"] / float(i + 1)))
             cv2.line(thisFrame, pts[i - 1], pts[i], (0, 0, 255), thickness)
 
 
     # return the frame and increment counter
     counter += 1
+    #print("counter: " + str(counter) + "\tpts: " + str(len(pts)) + " \t\t\tx: " + str(x) + "\t\t\ty: " + str(y) + "\t\t\tz: " + str(z))
     return thisFrame, x, y, z, pts, counter, isDetected
