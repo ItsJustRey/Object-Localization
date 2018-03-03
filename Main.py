@@ -1,23 +1,26 @@
 # import the necessary packages
-from tkinter import *
-from collections import deque
-import GUI
+#from tkinter import *
+#from collections import deque
+#import GUI
+
+#from tkinter import *
+
+#import OL_GUI as gui
+#from PyQt5 import QtGui, uic
+# PyQt5 import uic, QtWidgets
+
+
 import sys
-from tkinter import *
+from PyQt5.QtWidgets import QApplication
+import OL_GUI
 
-import OL_GUI as gui
-import PyQt5
-from PyQt5.QtWidgets import QDialog, QApplication
-from PyQt5.uic import loadUi
 
-def main():
-    app = QApplication(sys.argv)
-    window = gui.OL_Main_Window()
-    window.setWindowTitle("Test")
-    window.show()
-    sys.exit(app.exec_())
 
-main()
+app = QApplication(sys.argv)
+widget = OL_GUI.OL_GUI()
+widget.show()
+sys.exit(app.exec_())
+
 #def main():
 #    # start the app
 #   print("[INFO] starting...")
