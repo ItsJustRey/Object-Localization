@@ -1,7 +1,8 @@
-from Tkinter import *
+from tkinter import *
 import argparse
 import cv2
 import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from PIL import Image
 from PIL import ImageTk
@@ -10,7 +11,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from mpl_toolkits import mplot3d
 import Object_Localization
 from collections import deque
-matplotlib.use('TkAgg')
+
 style.use("ggplot")
 
 class GUI(Tk):
@@ -51,7 +52,7 @@ class MainMenu(Frame):
         label.pack(pady = 10, padx = 10)
 
         button_view_video = Button(self, pady = 10, padx = 10, text = "View Video",command = lambda: controller.show_frame(VideoWindow0)).pack()
-        button_saved_results = Button(self, pady = 10, padx = 10, text="Saved Results", command=lambda: controller.show_frame(VideoWindow1)).pack()
+        button_saved_results = Button(self, pady = 10, padx = 10, text="Saved Results").pack()
         #button_video2 = Button(self, text="Video Source 2", command=lambda: controller.show_frame(VideoWindow2)).pack()
 
 class VideoWindow0(Frame):
@@ -158,7 +159,7 @@ class VideoWindow0(Frame):
             self.ax.plot(self.v0_xArray, self.v0_zArray, self.v0_yArray, 'black')
             self.canvas.draw_idle()
 
-        self.master.after(33, self.v0_loop)  # call the same function after 30 milliseconds
+        self.master.after(60, self.v0_loop)  # call the same function after 30 milliseconds
 
     def v0_clear(self):
         self.v0_xArray = []
