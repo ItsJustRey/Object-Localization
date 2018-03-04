@@ -193,9 +193,9 @@ class OL_3D_Plot(QtGui.QWidget):
         layout = QtGui.QHBoxLayout()
 
         self.plot = gl.GLViewWidget()
-        self.plot.opts['distance'] = 2000
+        self.plot.opts['distance'] = 500
         self.plot.setWindowTitle('3-Dimensional Plot')
-        self.plot.opts['fov'] = 1
+        #self.plot.opts['fov'] = 1
         #self.plot.setGeometry(0, 110, 1920, 1080)
         #self.plot.show()
 
