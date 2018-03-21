@@ -54,6 +54,9 @@ class OL_GUI(QDialog):
         self.button_stop.clicked.connect(self.stop_video)
         self.button_clear.clicked.connect(self.clear)
 
+        self.button_stop.hide();
+        self.button_clear.hide();
+
         self.plot = OL_3D_Plot(self)
         self.plot1 = OL_3D_Plot(self)
         self.plot2 = OL_3D_Plot(self)
@@ -63,12 +66,48 @@ class OL_GUI(QDialog):
         self.layout_plot.addWidget(self.plot2)
         self.layout_plot.addWidget(self.plot3)
 
+        # Get camera list
+        self.VIDEO_SOURCE_0 = 0
+        self.VIDEO_SOURCE_1 = 1
+        self.VIDEO_SOURCE_2 = 2
+        self.comboBox_video0.addItem("0")
+        self.comboBox_video0.addItem("1")
+        self.comboBox_video0.addItem("2")
+        self.comboBox_video0.currentTextChanged.connect(self.comboBox_video0_changed)
+        self.comboBox_video1.addItem("0")
+        self.comboBox_video1.addItem("1")
+        self.comboBox_video1.addItem("2")
+        self.comboBox_video1.currentTextChanged.connect(self.comboBox_video1_changed)
+        self.comboBox_video2.addItem("0")
+        self.comboBox_video2.addItem("1")
+        self.comboBox_video2.addItem("2")
+        self.comboBox_video2.currentTextChanged.connect(self.comboBox_video2_changed)
+
+    def comboBox_video0_changed(self):
+        self.VIDEO_SOURCE_0 = self.comboBox_video0.currentText()
+        print(self.VIDEO_SOURCE_0)
+
+    def comboBox_video1_changed(self):
+        self.VIDEO_SOURCE_1 = self.comboBox_video1.currentText()
+
+    def comboBox_video2_changed(self):
+        self.VIDEO_SOURCE_2 = self.comboBox_video2.currentText()
+
     # INITIALIZE VIDEO 0, VIDEO 1, and VIDEO 2 FRAMES AND DATA
     def start_video(self):
         print("start")
-
+        self.button_start.hide()
+        self.button_stop.show()
+        self.button_clear.show()
+        self.comboBox_video0.hide()
+        self.comboBox_video1.hide()
+        self.comboBox_video2.hide()
+        self.label_comboBox_video0.hide()
+        self.label_comboBox_video1.hide()
+        self.label_comboBox_video2.hide()
+        print(self.VIDEO_SOURCE_0)
         # INITIALIZE VIDEO 0 FRAMES AND DATA
-        self.video0 = cv2.VideoCapture(0)
+        self.video0 = cv2.VideoCapture(int(self.VIDEO_SOURCE_0))
         self.video0.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
         self.video0.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
 
@@ -92,15 +131,6 @@ class OL_GUI(QDialog):
          self.v0_pts, self.v0_counter, self.v0_isRedDetected, self.v0_isGreenDetected, self.v0_isBlueDetected, self.v0_isYellowDetected) = \
             Object_Localization.Object_Localization(self.v0_frame, self.v0_pts, self.v0_counter)
 
-        # VIDEO 1 OBJECT DETECTION returns data of given frame
-        # (self.v1_frame, self.v1_x, self.v1_y, self.v1_z, self.v1_pts, self.v1_counter, self.v1_isDetected) = \
-        #    Object_Localization.Object_Localization(self.v0_frame, self.v1_pts, self.v1_counter)
-
-        # VIDEO 2 OBJECT DETECTION returns data of given frame
-        # (self.v2_frame, self.v2_x, self.v2_y, self.v2_z, self.v2_pts, self.v2_counter, self.v2_isDetected) = \
-        #    Object_Localization.Object_Localization(self.v2_frame, self.v2_pts, self.v2_counter)
-
-        # if(self.v0_isRedDetected | self.v0_isGreenDetected | self.v0_isBlueDetected | self.v0_isYellowDetected):
         if (self.v0_isRedDetected):
             if (len(self.v0_pts) > 10):
                 self.v0_red_xArray.append(self.v0_x_red)
@@ -134,9 +164,6 @@ class OL_GUI(QDialog):
         self.v0_blue_xyz = np.vstack([self.v0_blue_xArray, self.v0_blue_yArray, self.v0_blue_zArray]).transpose()
         self.v0_yellow_xyz = np.vstack([self.v0_yellow_xArray, self.v0_yellow_yArray, self.v0_yellow_zArray]).transpose()
 
-
-        # self.v1_xyz = np.vstack([self.v1_xArray, self.v1_yArray, self.v1_zArray]).transpose()
-        # self.v2_xyz = np.vstack([self.v2_xArray, self.v2_yArray, self.v2_zArray]).transpose()
         self.plot.traces.setData(pos=self.v0_red_xyz)
         self.plot1.traces.setData(pos=self.v0_green_xyz)
         self.plot2.traces.setData(pos=self.v0_blue_xyz)
@@ -166,9 +193,23 @@ class OL_GUI(QDialog):
 
     def stop_video(self):
         print("stop")
-        self.timer.stop()
 
-    # USED TO CLEAR VIDEO 0, VIDEO 1, VIDEO 2 DATA STRUCTURES
+        self.button_start.show()
+        self.button_stop.hide()
+        self.button_clear.hide()
+        self.comboBox_video0.show()
+        self.comboBox_video1.show()
+        self.comboBox_video2.show()
+        self.label_comboBox_video0.show()
+        self.label_comboBox_video1.show()
+        self.label_comboBox_video2.show()
+
+
+
+        self.timer.stop()
+        self.video0.release()
+
+        # USED TO CLEAR VIDEO 0, VIDEO 1, VIDEO 2 DATA STRUCTURES
     def clear(self):
         print("clearing");
         # CLEAR VIDEO 0 DATA STRUCTURES
@@ -217,26 +258,22 @@ class OL_3D_Plot(QtGui.QWidget):
         self.plot.opts['distance'] = 500
         self.plot.setWindowTitle('3-Dimensional Plot')
 
-        # self.plot1 = gl.GLViewWidget()
-        # self.plot1.opts['distance'] = 500
-        # self.plot1.setWindowTitle('3-Dimensional Plot')
-
         # self.plot.opts['fov'] = 1
         # self.plot.setGeometry(0, 110, 1920, 1080)
         # self.plot.show()
 
         # create the background grids
-        gx = gl.GLGridItem(color="b")
+        gx = gl.GLGridItem(color="blue")
         gx.rotate(90, 0, 1, 0)
         gx.translate(-10, 0, 0)
-
+        gx.scale(10, 1, 1)
         gy = gl.GLGridItem()
         gy.rotate(90, 1, 0, 0)
         gy.translate(0, -10, 0)
-
+        gy.scale(1, 10, 1)
         gz = gl.GLGridItem()
         gz.translate(0, 0, -10)
-
+        gz.scale(1, 1, 10)
         # gx.scale(1, 0.1, 0.1)
         # gy.scale(0.2, 0.1, 0.1)
         # gz.scale(0.1, 0.2, 0.1)
@@ -244,9 +281,7 @@ class OL_3D_Plot(QtGui.QWidget):
         self.plot.addItem(gx)
         self.plot.addItem(gy)
         self.plot.addItem(gz)
-        # self.plot1.addItem(gx)
-        # self.plot1.addItem(gy)
-        # self.plot1.addItem(gz)
+
         # self.plot.showMaximized()
         # pts = np.vstack(0, 0 ,0).transpose()
         # traces= gl.GLLinePlotItem(pos=pts)
@@ -254,10 +289,15 @@ class OL_3D_Plot(QtGui.QWidget):
         v0_xArray = []
         v0_yArray = []
         v0_zArray = []
+
+        v0_xArray1 = []
+        v0_yArray1 = []
+        v0_zArray1 = []
         # self.plot.resizeGL(400,400)
         plot_xyz = np.vstack([v0_xArray, v0_yArray, v0_zArray]).transpose()
+        plot_xyz1 = np.vstack([v0_xArray1, v0_yArray1, v0_zArray1]).transpose()
         # self.curve = self.plot.plot.getPlotItem().plot()
-        self.traces = gl.GLLinePlotItem(pos=plot_xyz)
+        self.traces = gl.GLLinePlotItem(pos=plot_xyz, antialias = TRUE)
         self.plot.addItem(self.traces)
 
         layout.addWidget(self.plot)
