@@ -3,13 +3,13 @@
  <class>Dialog</class>
  <widget class="QDialog" name="Dialog">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1296</width>
+    <width>1286</width>
     <height>857</height>
    </rect>
   </property>
@@ -58,9 +58,9 @@
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>10</x>
         <y>10</y>
-        <width>1291</width>
+        <width>1251</width>
         <height>32</height>
        </rect>
       </property>
@@ -68,22 +68,6 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetMaximumSize</enum>
        </property>
-       <item>
-        <spacer name="horizontalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item>
         <widget class="QPushButton" name="button_start">
          <property name="sizePolicy">
@@ -133,7 +117,7 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
           <bool>true</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(221, 221, 221);
+          <string notr="true">background-color: rgb(255, 255, 255);
 font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
          </property>
          <property name="text">
@@ -170,7 +154,7 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>10</width>
+         <width>5</width>
          <height>0</height>
         </size>
        </property>
@@ -284,7 +268,7 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>10</width>
+         <width>5</width>
          <height>20</height>
         </size>
        </property>
@@ -325,7 +309,7 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
         <string notr="true">font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        </property>
        <property name="text">
-        <string>Camera 0:</string>
+        <string>Video 0: </string>
        </property>
       </widget>
      </item>
@@ -360,7 +344,7 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
         <string notr="true">font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        </property>
        <property name="text">
-        <string>Camera 1:</string>
+        <string>Video 1:</string>
        </property>
       </widget>
      </item>
@@ -395,7 +379,7 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
         <string notr="true">font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        </property>
        <property name="text">
-        <string>Camera 2:</string>
+        <string>Video 2:</string>
        </property>
       </widget>
      </item>
@@ -423,13 +407,13 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
    <item>
     <layout class="QHBoxLayout" name="layout_plot">
      <property name="leftMargin">
-      <number>10</number>
+      <number>0</number>
      </property>
      <property name="topMargin">
       <number>50</number>
      </property>
      <property name="rightMargin">
-      <number>10</number>
+      <number>0</number>
      </property>
      <property name="bottomMargin">
       <number>50</number>
@@ -437,9 +421,6 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
     </layout>
    </item>
   </layout>
-  <zorder></zorder>
-  <zorder>groupBox_top</zorder>
-  <zorder>horizontalLayoutWidget_4</zorder>
  </widget>
  <resources/>
  <connections/>
