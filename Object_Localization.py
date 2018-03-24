@@ -7,10 +7,8 @@ import numpy as np
 
 def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter):
 
-    isRedDetected = False
-    isGreenDetected = False
-    isBlueDetected = False
-    isYellowDetected = False
+
+    isDetected = {"red": False, "green": False, "blue": False, "yellow": False}
 
     def distance_to_camera(knownWidth, focalLength, perWidth):
         # compute and return the distance from the image to camera
@@ -28,29 +26,24 @@ def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter
     ap.add_argument("-b", "--buffer", type=int, default=128, help="max buffer size")
     args = vars(ap.parse_args())
 
-    # define the lower and upper boundaries of the "green"
+    # define the lower and upper boundaries of multiple colors
     # ball in the HSV color space, then initialize the
     # list of tracked points
-
     lower = {'red': (166, 84, 141), 'green': (66, 122, 129), 'blue': (97, 100, 117), 'yellow': (23, 59, 119)}
     upper = {'red': (186, 255, 255), 'green': (86, 255, 255), 'blue': (117, 255, 255), 'yellow': (54, 255, 255)}
 
     # define standard colors for circle around the object
     colors = {'red': (0, 0, 255), 'green': (0, 255, 0), 'blue': (255, 0, 0), 'yellow': (0, 255, 217)}
 
-    _red_pts = red_pts
-    _green_pts = green_pts
-    _blue_pts = blue_pts
-    _yellow_pts = yellow_pts
-
     _counter = counter
 
     inches = 0
-    (x, y, z) = (0, 0, 0)
 
-    (x_red, x_green, x_blue, x_yellow) = (0, 0, 0, 0)
-    (y_red, y_green, y_blue, y_yellow) = (0, 0, 0, 0)
-    (z_red, z_green, z_blue, z_yellow) = (0, 0, 0, 0)
+
+    _red_xyz_pts = {'x': 0, 'y': 0, 'z': 0, 'pts': red_pts}
+    _green_xyz_pts = {'x': 0, 'y': 0, 'z': 0, 'pts': green_pts}
+    _blue_xyz_pts = {'x': 0, 'y': 0, 'z': 0, 'pts': blue_pts}
+    _yellow_xyz_pts = {'x': 0, 'y': 0, 'z': 0, 'pts': yellow_pts}
 
 
     # resize the frame, blur it, and convert it to the HSV color space
@@ -78,6 +71,9 @@ def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter
         # and initialize center of the ball
         center = None
         # only proceed if at least one contour was found
+
+
+
         if len(contours) > 0:
             # find the largest contour in the mask, then use
             # it to compute the minimum enclosing circle and
@@ -97,94 +93,92 @@ def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter
                 # cv2.circle(thisFrame, (int(x), int(y)), int(radius),(0, 255, 255), 2)
                 cv2.circle(_frame, (int(x), int(y)), int(radius), colors[key], 2)
                 cv2.circle(_frame, center, 5, (0, 0, 255), -1)
-                #_red_pts.appendleft(center)
-                #_green_pts.appendleft(center)
-                #_blue_pts.appendleft(center)
-                #_yellow_pts.appendleft(center)
+
                 if(key == "red"):
-                    isRedDetected = True
-                    _red_pts.appendleft(center)
+                    isDetected['red'] = True
+                    _red_xyz_pts['pts'].appendleft(center)
 
                 elif (key == "green"):
-                    isGreenDetected = True
-                    _green_pts.appendleft(center)
+                    isDetected['green'] = True
+                    _green_xyz_pts['pts'].appendleft(center)
 
                 elif (key == "blue"):
-                    isBlueDetected = True
-                    _blue_pts.appendleft(center)
+                    isDetected['blue'] = True
+                    _blue_xyz_pts['pts'].appendleft(center)
 
                 elif (key == "yellow"):
-                    isYellowDetected = True
-                    _yellow_pts.appendleft(center)
+                    isDetected['yellow'] = True
+                    _yellow_xyz_pts['pts'].appendleft(center)
 
 
-        if (key == "red"):
-            print(" red pts length:\t" + str(len(_red_pts)))
-            for i in np.arange(1, len(_red_pts)):
-                # if either of the tracked points are None, ignore
-                if _red_pts[i - 1] is None or _red_pts[i] is None:
-                    print(" Not Enough Points ")
-                    continue
+            if (key == "red"):
 
-                # check to see if enough points have been accumalated in
-                # the buffer
-                if _counter >= 10 and i == 1 and _red_pts[-1] is not None:
-                    # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
-                    x_red = _red_pts[-1][0] - _red_pts[i][0]
-                    y_red = _red_pts[-1][1] - _red_pts[i][1]
-                    z_red = round(inches)
+                print(" red pts length:\t" + str(len(_red_xyz_pts['pts'])))
+                for i in np.arange(1, len(_red_xyz_pts['pts'])):
+                    # if either of the tracked points are None, ignore
+                    if _red_xyz_pts['pts'][i - 1] is None or _red_xyz_pts['pts'] is None:
+                        print(" Not Enough Points ")
+                        continue
 
-
-        elif (key == "green"):
-            print(" green pts length:\t" + str(len(_green_pts)))
-            for i in np.arange(1, len(_green_pts)):
-                # if either of the tracked points are None, ignore
-                if _green_pts[i - 1] is None or _green_pts[i] is None:
-                    print(" Not Enough Points ")
-                    continue
-
-                # check to see if enough points have been accumulated in
-                # the buffer
-                if _counter >= 10 and i == 1 and _green_pts[-1] is not None:
-                    # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
-                    x_green = _green_pts[-1][0] - _green_pts[i][0]
-                    y_green = _green_pts[-1][1] - _green_pts[i][1]
-                    z_green = round(inches)
+                    # check to see if enough points have been accumulated in
+                    # the buffer
+                    if _counter >= 10 and i == 1 and _red_xyz_pts['pts'][-1] is not None:
+                        _red_xyz_pts['x'] = _red_xyz_pts['pts'][-1][0] - _red_xyz_pts['pts'][i][0]
+                        _red_xyz_pts['y'] = _red_xyz_pts['pts'][-1][1] - _red_xyz_pts['pts'][i][1]
+                        _red_xyz_pts['z'] = round(inches)
 
 
-        elif (key == "blue"):
-            print(" blue pts length:\t" + str(len(_blue_pts)))
-            for i in np.arange(1, len(_blue_pts)):
-                # if either of the tracked points are None, ignore
-                if _blue_pts[i - 1] is None or _blue_pts[i] is None:
-                    print(" Not Enough Points ")
-                    continue
+            elif (key == "green"):
+                print(" green pts length:\t" + str(len(_green_xyz_pts['pts'])))
+                for i in np.arange(1, len(_green_xyz_pts['pts'])):
+                    # if either of the tracked points are None, ignore
+                    if _green_xyz_pts['pts'][i - 1] is None or _green_xyz_pts['pts'][i] is None:
+                        print(" Not Enough Points ")
+                        continue
 
-                # check to see if enough points have been accumulated in
-                # the buffer
-                if _counter >= 10 and i == 1 and _blue_pts[-1] is not None:
-                    # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
-                    x_blue = _blue_pts[-1][0] - _blue_pts[i][0]
-                    y_blue = _blue_pts[-1][1] - _blue_pts[i][1]
-                    z_blue = round(inches)
+                    # check to see if enough points have been accumulated in
+                    # the buffer
+                    if _counter >= 10 and i == 1 and _green_xyz_pts['pts'][-1] is not None:
+                        # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
+                        _green_xyz_pts['x'] = _green_xyz_pts['pts'][-1][0] - _green_xyz_pts['pts'][i][0]
+                        _green_xyz_pts['y'] = _green_xyz_pts['pts'][-1][1] - _green_xyz_pts['pts'][i][1]
+                        _green_xyz_pts['z'] = round(inches)
 
 
-        elif (key == "yellow"):
-            print(" yellow pts length:\t" + str(len(_yellow_pts)))
-            for i in np.arange(1, len(_yellow_pts)):
-                # if either of the tracked points are None, ignore
-                if _yellow_pts[i - 1] is None or _yellow_pts[i] is None:
-                    print(" Not Enough Points ")
-                    continue
+            elif (key == "blue"):
+                print(" blue pts length:\t" + str(len(_blue_xyz_pts['pts'])))
+                for i in np.arange(1, len(_blue_xyz_pts['pts'])):
+                    # if either of the tracked points are None, ignore
+                    if _blue_xyz_pts['pts'][i - 1] is None or _blue_xyz_pts['pts'][i] is None:
+                        print(" Not Enough Points ")
+                        continue
 
-                # check to see if enough points have been accumulated in
-                # the buffer
-                if _counter >= 10 and i == 1 and _yellow_pts[-1] is not None:
+                    # check to see if enough points have been accumulated in
+                    # the buffer
+                    if _counter >= 10 and i == 1 and _blue_xyz_pts['pts'][-1] is not None:
+                        # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
+                        _blue_xyz_pts['x'] = _blue_xyz_pts['pts'][-1][0] - _blue_xyz_pts['pts'][i][0]
+                        _blue_xyz_pts['y'] = _blue_xyz_pts['pts'][-1][1] - _blue_xyz_pts['pts'][i][1]
+                        _blue_xyz_pts['z'] = round(inches)
 
-                    # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
-                    x_yellow = _yellow_pts[-1][0] - _yellow_pts[i][0]
-                    y_yellow = _yellow_pts[-1][1] - _yellow_pts[i][1]
-                    z_yellow = round(inches)
+
+            elif (key == "yellow"):
+
+                print(" yellow pts length:\t" + str(len(_yellow_xyz_pts['pts'])))
+                for i in np.arange(1, len(_yellow_xyz_pts['pts'])):
+                    # if either of the tracked points are None, ignore
+                    if _yellow_xyz_pts['pts'][i - 1] is None or _yellow_xyz_pts['pts'] is None:
+                        print(" Not Enough Points ")
+                        continue
+
+                    # check to see if enough points have been accumulated in
+                    # the buffer
+                    if _counter >= 10 and i == 1 and _yellow_xyz_pts['pts'][-1] is not None:
+                        _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][-1][0] - _yellow_xyz_pts['pts'][i][0]
+                        _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][-1][1] - _yellow_xyz_pts['pts'][i][1]
+                        _yellow_xyz_pts['z'] = round(inches)
+
+            #contours = contours.h_next()
 
     # draw the connecting lines
     #thickness = int(np.sqrt(args["buffer"] / float(i + 1)))
@@ -195,20 +189,24 @@ def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter
 
 
     print("COUNTER: " + str(_counter) +
-          "\t\t\nRED:\t" + str(isRedDetected) + " \t\tx_red:\t\t" + str(x_red) + "\t\ty_red:\t\t" + str(
-        y_red) + "\t\tz_red:\t\t" + str(z_red) +
-          "\t\t\nGREEN:\t" + str(isGreenDetected) + " \t\tx_green:\t" + str(x_green) + "\t\ty_green:\t" + str(
-        y_green) + "\t\tz_green:\t" + str(z_green) +
-          "\t\t\nBLUE:\t" + str(isBlueDetected) + " \t\tx_blue:\t\t" + str(x_blue) + "\t\ty_blue:\t\t" + str(
-        y_blue) + "\t\tz_blue:\t\t" + str(z_blue) +
-          "\t\t\nYELLOW:\t" + str(isYellowDetected) + " \t\tx_yellow:\t" + str(x_yellow) + "\t\ty_yellow:\t" + str(
-        y_yellow) + "\t\tz_yellow:\t" + str(z_yellow)
+          "\t\t\nRED:\t" + str(isDetected['red']) +
+          " \t\tx_red:\t\t" + str(_red_xyz_pts['x']) +
+          "\t\ty_red:\t\t" + str(_red_xyz_pts['y'])
+          + "\t\tz_red:\t\t" + str(_red_xyz_pts['z']) +
+          "\t\t\nGREEN:\t" + str(isDetected['green']) +
+          " \t\tx_green:\t" + str(_green_xyz_pts['x']) +
+          "\t\ty_green:\t" + str(_green_xyz_pts['y']) +
+          "\t\tz_green:\t" + str(_green_xyz_pts['z']) +
+          "\t\t\nBLUE:\t" + str(isDetected['blue']) +
+          " \t\tx_blue:\t\t" + str(_blue_xyz_pts['x']) +
+          "\t\ty_blue:\t\t" + str(_blue_xyz_pts['y']) +
+          "\t\tz_blue:\t\t" + str(_blue_xyz_pts['z']) +
+          "\t\t\nYELLOW:\t" + str(isDetected['yellow']) +
+          "\t\tx_yellow:\t" + str(_yellow_xyz_pts['x']) +
+          "\t\ty_yellow:\t" + str(_yellow_xyz_pts['y']) +
+          "\t\tz_yellow:\t" + str(_yellow_xyz_pts['z'])
           )
     # print("counter: " + str(counter) + "\tpts: " + str(len(pts)) + " \t\t\tx: " + str(x) + "\t\t\ty: " + str(y) + "\t\t\tz: " + str(z))
     return _frame, _counter, \
-           x_red, y_red, z_red, \
-           x_green, y_green, z_green, \
-           x_blue, y_blue, z_blue, \
-           x_yellow, y_yellow, z_yellow, \
-           _red_pts, _green_pts, _blue_pts, _yellow_pts,\
-           isRedDetected, isGreenDetected, isBlueDetected, isYellowDetected
+           _red_xyz_pts, _green_xyz_pts, _blue_xyz_pts, _yellow_xyz_pts, \
+           isDetected
