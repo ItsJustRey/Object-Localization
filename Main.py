@@ -7,7 +7,6 @@
 
 #import OL_GUI as gui
 #from PyQt5 import QtGui, uic
-# PyQt5 import uic, QtWidgets
 
 
 import sys

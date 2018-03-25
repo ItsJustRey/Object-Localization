@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1286</width>
+    <width>1296</width>
     <height>857</height>
    </rect>
   </property>
@@ -97,7 +97,7 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
           <bool>true</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 20, 20);
+          <string notr="true">background-color: rgb(255, 21, 20);
 font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
          </property>
          <property name="text">

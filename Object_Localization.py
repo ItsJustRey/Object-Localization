@@ -7,6 +7,7 @@ import numpy as np
 
 def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter):
 
+    isv2 = imutils.is_cv2()
 
     isDetected = {"red": False, "green": False, "blue": False, "yellow": False}
 
@@ -29,11 +30,13 @@ def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter
     # define the lower and upper boundaries of multiple colors
     # ball in the HSV color space, then initialize the
     # list of tracked points
-    lower = {'red': (166, 84, 141), 'green': (66, 122, 129), 'blue': (97, 100, 117), 'yellow': (23, 59, 119)}
-    upper = {'red': (186, 255, 255), 'green': (86, 255, 255), 'blue': (117, 255, 255), 'yellow': (54, 255, 255)}
+    #lower = {'red': (166, 84, 141), 'green': (66, 122, 129), 'blue': (97, 100, 117), 'yellow': (23, 59, 119)}
+    #upper = {'red': (186, 255, 255), 'green': (86, 255, 255), 'blue': (117, 255, 255), 'yellow': (54, 255, 255)}
+    lower= {'red': (0, 100, 100), 'green': (40, 70, 70), 'blue': (97, 100, 117), 'yellow': (23, 59, 119)}
+    upper = {'red': (10, 255, 255), 'green': (80, 200, 200), 'blue': (117, 255, 255), 'yellow': (54, 255, 255)}
 
     # define standard colors for circle around the object
-    colors = {'red': (0, 0, 255), 'green': (0, 255, 0), 'blue': (255, 0, 0), 'yellow': (0, 255, 217)}
+    colors = {'red': (0, 0, 255), 'green': (0, 255, 0), 'blue': (255, 0, 0), 'yellow': (0, 255, 255)}
 
     _counter = counter
 
@@ -62,18 +65,22 @@ def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
         # mask = cv2.erode(mask, None, iterations=2)
-        # mask = cv2.dilate(mask, None, iterations=2)
+        # =mask = cv2.dilate(mask, None, iterations=2)
 
         # find contours in the mask
         contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
                                 cv2.CHAIN_APPROX_SIMPLE)[-2]
 
+        # if isv2:
+        #     contours = contours[0]
+        # else:
+        #     contours = contours[1]
         # and initialize center of the ball
         center = None
         # only proceed if at least one contour was found
 
 
-
+        #for(cnt in contours):
         if len(contours) > 0:
             # find the largest contour in the mask, then use
             # it to compute the minimum enclosing circle and
@@ -174,8 +181,17 @@ def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter
                     # check to see if enough points have been accumulated in
                     # the buffer
                     if _counter >= 10 and i == 1 and _yellow_xyz_pts['pts'][-1] is not None:
-                        _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][-1][0] - _yellow_xyz_pts['pts'][i][0]
-                        _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][-1][1] - _yellow_xyz_pts['pts'][i][1]
+
+                        if(abs(_yellow_xyz_pts['pts'][-9][0] - _yellow_xyz_pts['pts'][i][0]) > 2 ):
+                            _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][-9][0] - _yellow_xyz_pts['pts'][i][0]
+                        else:
+                            _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][-9][0]
+
+                        if (abs(_yellow_xyz_pts['pts'][-9][1] - _yellow_xyz_pts['pts'][i][1]) > 2):
+                            _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][-9][1] - _yellow_xyz_pts['pts'][i][1]
+                        else:
+                            _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][-9][1]
+
                         _yellow_xyz_pts['z'] = round(inches)
 
             #contours = contours.h_next()

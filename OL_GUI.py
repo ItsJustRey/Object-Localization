@@ -10,7 +10,6 @@ from tkinter import *
 import argparse
 import cv2
 import matplotlib
-# matplotlib.use('TkAgg')
 from PyQt5.uic.properties import QtWidgets, QtCore
 
 import pyqtgraph as pg
