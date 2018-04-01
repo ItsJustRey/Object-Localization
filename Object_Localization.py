@@ -5,7 +5,7 @@ import imutils
 import numpy as np
 
 
-def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter):
+def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts):
 
     isv2 = imutils.is_cv2()
 
@@ -223,6 +223,4 @@ def Object_Localization(frame, red_pts, green_pts, blue_pts, yellow_pts, counter
           "\t\tz_yellow:\t" + str(_yellow_xyz_pts['z'])
           )
     # print("counter: " + str(counter) + "\tpts: " + str(len(pts)) + " \t\t\tx: " + str(x) + "\t\t\ty: " + str(y) + "\t\t\tz: " + str(z))
-    return _frame, _counter, \
-           _red_xyz_pts, _green_xyz_pts, _blue_xyz_pts, _yellow_xyz_pts, \
-           isDetected
+    return _frame, _counter, _red_xyz_pts, _green_xyz_pts, _blue_xyz_pts, _yellow_xyz_pts, isDetected

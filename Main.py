@@ -1,14 +1,4 @@
 # import the necessary packages
-#from tkinter import *
-#from collections import deque
-#import GUI
-
-#from tkinter import *
-
-#import OL_GUI as gui
-#from PyQt5 import QtGui, uic
-
-
 import sys
 from PyQt5.QtWidgets import QApplication
 import OL_GUI

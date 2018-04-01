@@ -6,33 +6,17 @@ from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import QDialog, QWidget, QSizePolicy
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import QTimer
-from tkinter import *
 import argparse
 import cv2
-import matplotlib
 from PyQt5.uic.properties import QtWidgets, QtCore
 
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 from pyqtgraph.Qt import QtGui, QtCore
 
-import collections
-import random
-import time
-import math
 import numpy as np
-matplotlib.use('QT5Agg')
-import matplotlib.pyplot as plt
-from PIL import Image
-from PIL import ImageTk
-from matplotlib import style
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-from mpl_toolkits import mplot3d
 import Object_Localization
 from collections import deque
-import random
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 
 class OL_GUI(QDialog):
     def __init__(self):
@@ -48,7 +32,7 @@ class OL_GUI(QDialog):
 
 
         # CLEAR DATA STRUCTURES
-        self.clear("all")
+        self.clear("all", True, True, True)
 
         # INITIALLY HIDE STOP/CLEAR
         self.button_stop.hide()
@@ -57,14 +41,14 @@ class OL_GUI(QDialog):
         # DEFINE BUTTON CLICK EVENTS
         self.button_start.clicked.connect(self.start_video)
         self.button_stop.clicked.connect(self.stop_video)
-        self.button_clear.clicked.connect(lambda: self.clear("all"))
+        self.button_clear.clicked.connect(lambda: self.clear("all", True, True, True))
 
         # SET UP 3D PLOT
-        self.plot_v0 = OL_3D_Plot(self)
+        #self.plot_v0 = OL_3D_Plot(self)
         #self.plot1 = OL_3D_Plot(self)
         #self.plot2 = OL_3D_Plot(self)
         #self.plot3 = OL_3D_Plot(self)
-        self.layout_plot.addWidget(self.plot_v0)
+        #self.layout_plot.addWidget(self.plot_v0)
         #self.layout_plot.addWidget(self.plot1)
         #self.layout_plot.addWidget(self.plot2)
         #self.layout_plot.addWidget(self.plot3)
@@ -77,11 +61,16 @@ class OL_GUI(QDialog):
         # COMBO BOXES
         comboBoxOptions = ["0", "1", "2"]
         self.comboBox_video0.addItems(comboBoxOptions)
-        self.comboBox_video1.addItems(comboBoxOptions)
-        self.comboBox_video2.addItems(comboBoxOptions)
         self.comboBox_video0.currentTextChanged.connect(self.comboBox_video0_changed)
+        self.comboBox_video0.setCurrentIndex(comboBoxOptions.index('0'))
+
         self.comboBox_video1.currentTextChanged.connect(self.comboBox_video1_changed)
+        self.comboBox_video1.addItems(comboBoxOptions)
+        self.comboBox_video1.setCurrentIndex(comboBoxOptions.index('1'))
+
         self.comboBox_video2.currentTextChanged.connect(self.comboBox_video2_changed)
+        self.comboBox_video2.addItems(comboBoxOptions)
+        self.comboBox_video2.setCurrentIndex(comboBoxOptions.index('2'))
 
 
 
@@ -113,28 +102,37 @@ class OL_GUI(QDialog):
         self.video0.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.video0.set(cv2.CAP_PROP_FRAME_HEIGHT, 800)
 
+        # INITIALIZE VIDEO 1 FRAMES AND DATA
+        self.video1 = cv2.VideoCapture(int(self.VIDEO_SOURCE_1))
+        self.video1.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.video1.set(cv2.CAP_PROP_FRAME_HEIGHT, 800)
+
+        # INITIALIZE VIDEO 2 FRAMES AND DATA
+        self.video2 = cv2.VideoCapture(int(self.VIDEO_SOURCE_2))
+        self.video2.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.video2.set(cv2.CAP_PROP_FRAME_HEIGHT, 800)
+
         # CREATE TIMER THREAD TO UPDATE FRAME EVERY (x) milliseconds
         self.timer = QTimer(self)
-        #self.timer.setTimerType(QtCore.Qt.PreciseTimer)
+        self.timer.setTimerType(QtCore.Qt.PreciseTimer)
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(1000.0 / 30.0)
 
 
+
     # GET VIDEO 0, VIDEO 1, and VIDEO 2 FRAMES AND DATA
     def update_frame(self):
-        print("----------------------------------------------------------------------------------------------")
-        ret, self.v0_frame = self.video0.read()
-        # ret, self.v1_frame = self.video1.read()
-        # ret, self.v2_frame = self.video2.read()
 
-        # VIDEO 0 OBJECT DETECTION returns data of given frame
-        (self.v0_frame, self.v0_counter,
-         self.v0_red_xyz_pts, self.v0_green_xyz_pts, self.v0_blue_xyz_pts, self.v0_yellow_xyz_pts,
-         self.v0_isDetected) = \
-        Object_Localization.Object_Localization(self.v0_frame,  self.v0_red_xyz_pts['pts'], self.v0_green_xyz_pts['pts'], self.v0_blue_xyz_pts['pts'], self.v0_yellow_xyz_pts['pts'], self.v0_counter)
+        print("----------------------------------------------------------------------------------------------")
+        ####################################################################################################
+        #                                       VIDEO 0
+        ####################################################################################################
+        ret, self.v0_frame = self.video0.read()
+
+        (self.v0_frame, self.v0_counter, self.v0_red_xyz_pts, self.v0_green_xyz_pts, self.v0_blue_xyz_pts, self.v0_yellow_xyz_pts, self.v0_isDetected) = Object_Localization.Object_Localization \
+            (self.v0_frame, self.v0_counter, self.v0_red_xyz_pts['pts'], self.v0_green_xyz_pts['pts'], self.v0_blue_xyz_pts['pts'], self.v0_yellow_xyz_pts['pts'])
 
         if(True in self.v0_isDetected.values()):
-
 
             if (self.v0_isDetected['red']):
                 print("red pts: " + str(len(self.v0_red_xyz_pts['pts'])))
@@ -143,7 +141,7 @@ class OL_GUI(QDialog):
                     self.v0_red['y'].append(self.v0_red_xyz_pts['y'])
                     self.v0_red['z'].append(self.v0_red_xyz_pts['z'])
             else:
-                self.clear("red")
+                self.clear("red", True, False, False)
 
             if (self.v0_isDetected['green']):
                 print("green pts: " + str(len(self.v0_green_xyz_pts['pts'])))
@@ -152,7 +150,7 @@ class OL_GUI(QDialog):
                     self.v0_green['y'].append(self.v0_green_xyz_pts['y'])
                     self.v0_green['z'].append(self.v0_green_xyz_pts['z'])
             else:
-                self.clear("green")
+                self.clear("green", True, False, False)
 
             if (self.v0_isDetected['blue']):
                 print("blue pts: " + str(len(self.v0_blue_xyz_pts['pts'])))
@@ -161,7 +159,7 @@ class OL_GUI(QDialog):
                     self.v0_blue['y'].append(self.v0_blue_xyz_pts['y'])
                     self.v0_blue['z'].append(self.v0_blue_xyz_pts['z'])
             else:
-                self.clear("blue")
+                self.clear("blue", True, False, False)
 
             if (self.v0_isDetected['yellow']):
                 print("yellow pts: " + str(len(self.v0_yellow_xyz_pts['pts'])))
@@ -170,20 +168,123 @@ class OL_GUI(QDialog):
                     self.v0_yellow['y'].append(self.v0_yellow_xyz_pts['y'])
                     self.v0_yellow['z'].append(self.v0_yellow_xyz_pts['z'])
             else:
-                self.clear("yellow")
+                self.clear("yellow", True, False, False)
 
         else:
-            self.clear("all")
+            self.clear("all", True, False, False)
+
+        ####################################################################################################
+        #                                       VIDEO 1
+        ####################################################################################################
+        ret, self.v1_frame = self.video1.read()
+
+        (self.v1_frame, self.v1_counter, self.v1_red_xyz_pts, self.v1_green_xyz_pts, self.v1_blue_xyz_pts, self.v1_yellow_xyz_pts, self.v1_isDetected) = Object_Localization.Object_Localization\
+            (self.v1_frame, self.v1_counter, self.v1_red_xyz_pts['pts'],self.v1_green_xyz_pts['pts'], self.v1_blue_xyz_pts['pts'],self.v1_yellow_xyz_pts['pts'])
+
+        if (True in self.v1_isDetected.values()):
+
+            if (self.v1_isDetected['red']):
+                print("red pts: " + str(len(self.v1_red_xyz_pts['pts'])))
+                if (len(self.v1_red_xyz_pts['pts']) > 10):
+                    self.v1_red['x'].append(self.v1_red_xyz_pts['x'])
+                    self.v1_red['y'].append(self.v1_red_xyz_pts['y'])
+                    self.v1_red['z'].append(self.v1_red_xyz_pts['z'])
+            else:
+                self.clear("red", False, True, False)
+
+            if (self.v1_isDetected['green']):
+                print("green pts: " + str(len(self.v1_green_xyz_pts['pts'])))
+                if (len(self.v1_green_xyz_pts['pts']) > 10):
+                    self.v1_green['x'].append(self.v1_green_xyz_pts['x'])
+                    self.v1_green['y'].append(self.v1_green_xyz_pts['y'])
+                    self.v1_green['z'].append(self.v1_green_xyz_pts['z'])
+            else:
+                self.clear("green", False, True, False)
+
+            if (self.v1_isDetected['blue']):
+                print("blue pts: " + str(len(self.v1_blue_xyz_pts['pts'])))
+                if (len(self.v1_blue_xyz_pts['pts']) > 10):
+                    self.v1_blue['x'].append(self.v1_blue_xyz_pts['x'])
+                    self.v1_blue['y'].append(self.v1_blue_xyz_pts['y'])
+                    self.v1_blue['z'].append(self.v1_blue_xyz_pts['z'])
+            else:
+                self.clear("blue", False, True, False)
+
+            if (self.v1_isDetected['yellow']):
+                print("yellow pts: " + str(len(self.v1_yellow_xyz_pts['pts'])))
+                if (len(self.v1_yellow_xyz_pts['pts']) > 10):
+                    self.v1_yellow['x'].append(self.v1_yellow_xyz_pts['x'])
+                    self.v1_yellow['y'].append(self.v1_yellow_xyz_pts['y'])
+                    self.v1_yellow['z'].append(self.v1_yellow_xyz_pts['z'])
+            else:
+                self.clear("yellow", False, True, False)
+
+        else:
+            self.clear("all", False, True, False)
+
+        ####################################################################################################
+        #                                       VIDEO 2
+        ####################################################################################################
+
+        ret, self.v2_frame = self.video2.read()
+
+        (self.v2_frame, self.v2_counter, self.v2_red_xyz_pts, self.v2_green_xyz_pts, self.v2_blue_xyz_pts, self.v2_yellow_xyz_pts, self.v2_isDetected) = Object_Localization.Object_Localization \
+            (self.v2_frame, self.v2_counter, self.v2_red_xyz_pts['pts'], self.v2_green_xyz_pts['pts'], self.v2_blue_xyz_pts['pts'], self.v2_yellow_xyz_pts['pts'])
+
+        if (True in self.v2_isDetected.values()):
+
+            if (self.v2_isDetected['red']):
+                print("red pts: " + str(len(self.v2_red_xyz_pts['pts'])))
+                if (len(self.v2_red_xyz_pts['pts']) > 10):
+                    self.v2_red['x'].append(self.v2_red_xyz_pts['x'])
+                    self.v2_red['y'].append(self.v2_red_xyz_pts['y'])
+                    self.v2_red['z'].append(self.v2_red_xyz_pts['z'])
+            else:
+                self.clear("red", False, False, True)
+
+            if (self.v2_isDetected['green']):
+                print("green pts: " + str(len(self.v2_green_xyz_pts['pts'])))
+                if (len(self.v2_green_xyz_pts['pts']) > 10):
+                    self.v2_green['x'].append(self.v2_green_xyz_pts['x'])
+                    self.v2_green['y'].append(self.v2_green_xyz_pts['y'])
+                    self.v2_green['z'].append(self.v2_green_xyz_pts['z'])
+            else:
+                self.clear("green", False, False, True)
+
+            if (self.v2_isDetected['blue']):
+                print("blue pts: " + str(len(self.v2_blue_xyz_pts['pts'])))
+                if (len(self.v2_blue_xyz_pts['pts']) > 10):
+                    self.v2_blue['x'].append(self.v2_blue_xyz_pts['x'])
+                    self.v2_blue['y'].append(self.v2_blue_xyz_pts['y'])
+                    self.v2_blue['z'].append(self.v2_blue_xyz_pts['z'])
+            else:
+                self.clear("blue", False, False, True)
+
+            if (self.v2_isDetected['yellow']):
+                print("yellow pts: " + str(len(self.v2_yellow_xyz_pts['pts'])))
+                if (len(self.v2_yellow_xyz_pts['pts']) > 10):
+                    self.v2_yellow['x'].append(self.v2_yellow_xyz_pts['x'])
+                    self.v2_yellow['y'].append(self.v2_yellow_xyz_pts['y'])
+                    self.v2_yellow['z'].append(self.v2_yellow_xyz_pts['z'])
+            else:
+                self.clear("yellow", False, False, True)
+
+        else:
+            self.clear("all", False, False, True)
 
         # V0 PLOT MULTIPLE TRACES
-        self.plot_v0.trace_red.setData(pos= np.vstack([self.v0_red['x'], self.v0_red['y'], self.v0_red['z']]).transpose())
-        self.plot_v0.trace_green.setData(pos= np.vstack([self.v0_green['x'], self.v0_green['y'], self.v0_green['z']]).transpose())
-        self.plot_v0.trace_blue.setData(pos= np.vstack([self.v0_blue['x'], self.v0_blue['y'], self.v0_blue['z']]).transpose())
-        self.plot_v0.trace_yellow.setData(pos= np.vstack([self.v0_yellow['x'], self.v0_yellow['y'], self.v0_yellow['z']]).transpose())
+        # self.plot_v0.trace_red.setData(pos= np.vstack([self.v0_red['x'], self.v0_red['y'], self.v0_red['z']]).transpose())
+        # self.plot_v0.trace_green.setData(pos= np.vstack([self.v0_green['x'], self.v0_green['y'], self.v0_green['z']]).transpose())
+        # self.plot_v0.trace_blue.setData(pos= np.vstack([self.v0_blue['x'], self.v0_blue['y'], self.v0_blue['z']]).transpose())
+        # self.plot_v0.trace_yellow.setData(pos= np.vstack([self.v0_yellow['x'], self.v0_yellow['y'], self.v0_yellow['z']]).transpose())
         self.v0_frame = cv2.flip(self.v0_frame, 1)
-        self.display_frame(self.v0_frame, 1)
+        self.v1_frame = cv2.flip(self.v1_frame, 1)
+        self.v2_frame = cv2.flip(self.v2_frame, 1)
+        self.display_frame(self.v0_frame, 0, 1)
+        self.display_frame(self.v1_frame, 1, 1)
+        self.display_frame(self.v2_frame, 2, 1)
 
-    def display_frame(self, _frame, window=1):
+    def display_frame(self, _frame, source, window=1):
         #qformat = QImage.Format_Indexed8
         qformat = QImage.Format_RGB888
         if len(_frame.shape) == 3:
@@ -196,12 +297,16 @@ class OL_GUI(QDialog):
         outputImage = outputImage.rgbSwapped()
 
         if window == 1:
-            self.label_video0.setPixmap(QPixmap.fromImage(outputImage))
-            self.label_video0.setScaledContents(True)
-            # self.label_video1.setPixmap(QPixmap.fromImage(outputImage))
-            # self.label_video1.setScaledContents(True)
-            # self.label_video2.setPixmap(QPixmap.fromImage(outputImage))
-            # self.label_video2.setScaledContents(True)
+            if source == 0:
+                self.label_video0.setPixmap(QPixmap.fromImage(outputImage))
+                self.label_video0.setScaledContents(True)
+            elif source == 1:
+                self.label_video1.setPixmap(QPixmap.fromImage(outputImage))
+                self.label_video1.setScaledContents(True)
+            elif source == 2:
+                self.label_video2.setPixmap(QPixmap.fromImage(outputImage))
+                self.label_video2.setScaledContents(True)
+
 
         print("----------------------------------------------------------------------------------------------")
 
@@ -219,47 +324,129 @@ class OL_GUI(QDialog):
         self.label_comboBox_video2.show()
 
         # STOP TIMER THREAD AND RELEASE V0
-        self.clear("all")
+        self.clear("all", True, True, True)
         self.timer.stop()
         self.video0.release()
+        self.video1.release()
+        self.video2.release()
 
         # USED TO CLEAR VIDEO 0, VIDEO 1, VIDEO 2 DATA STRUCTURES
-    def clear(self, mode):
+    def clear(self, mode, source0, source1, source2):
         newDeque = deque(maxlen= self.args["buffer"])
         if(mode == "all"):
             print("clearing all");
-            self.v0_red = {'x': [], 'y': [], 'z': []}
-            self.v0_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+            if(source0):
+                print(" clearing all source0");
+                self.v0_red = {'x': [], 'y': [], 'z': []}
+                self.v0_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
-            self.v0_green = {'x': [], 'y': [], 'z': []}
-            self.v0_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+                self.v0_green = {'x': [], 'y': [], 'z': []}
+                self.v0_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
-            self.v0_blue = {'x': [], 'y': [], 'z': []}
-            self.v0_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+                self.v0_blue = {'x': [], 'y': [], 'z': []}
+                self.v0_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
-            self.v0_yellow = {'x': [], 'y': [], 'z': []}
-            self.v0_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
-            self.v0_counter = 0
+                self.v0_yellow = {'x': [], 'y': [], 'z': []}
+                self.v0_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+                self.v0_counter = 0
+
+            if (source1):
+                print(" clearing all source1");
+                self.v1_red = {'x': [], 'y': [], 'z': []}
+                self.v1_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+                self.v1_green = {'x': [], 'y': [], 'z': []}
+                self.v1_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+                self.v1_blue = {'x': [], 'y': [], 'z': []}
+                self.v1_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+                self.v1_yellow = {'x': [], 'y': [], 'z': []}
+                self.v1_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+                self.v1_counter = 0
+
+            if (source2):
+                print(" clearing all source2");
+                self.v2_red = {'x': [], 'y': [], 'z': []}
+                self.v2_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+                self.v2_green = {'x': [], 'y': [], 'z': []}
+                self.v2_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+                self.v2_blue = {'x': [], 'y': [], 'z': []}
+                self.v2_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+                self.v2_yellow = {'x': [], 'y': [], 'z': []}
+                self.v2_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+                self.v2_counter = 0
 
         elif(mode == "red"):
             print("clearing red");
-            self.v0_red = {'x': [], 'y': [], 'z': []}
-            self.v0_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+            if (source0):
+                print(" clearing red source0");
+                self.v0_red = {'x': [], 'y': [], 'z': []}
+                self.v0_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+            if (source1):
+                print(" clearing red source1");
+                self.v1_red = {'x': [], 'y': [], 'z': []}
+                self.v1_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+            if (source2):
+                print(" clearing red source2");
+                self.v2_red = {'x': [], 'y': [], 'z': []}
+                self.v2_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
         elif (mode == "green"):
             print("clearing green");
-            self.v0_green = {'x': [], 'y': [], 'z': []}
-            self.v0_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+            if (source0):
+                print(" clearing green source0");
+                self.v0_green = {'x': [], 'y': [], 'z': []}
+                self.v0_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+            if (source1):
+                print(" clearing green source1");
+                self.v1_green = {'x': [], 'y': [], 'z': []}
+                self.v1_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+            if (source2):
+                print(" clearing green source2");
+                self.v2_green = {'x': [], 'y': [], 'z': []}
+                self.v2_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
         elif (mode == "blue"):
             print("clearing blue");
-            self.v0_blue = {'x': [], 'y': [], 'z': []}
-            self.v0_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+            if (source0):
+                print(" clearing blue source0");
+                self.v0_blue = {'x': [], 'y': [], 'z': []}
+                self.v0_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+            if (source1):
+                print(" clearing blue source1");
+                self.v1_blue = {'x': [], 'y': [], 'z': []}
+                self.v1_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+            if (source2):
+                print(" clearing blue source2");
+                self.v2_blue = {'x': [], 'y': [], 'z': []}
+                self.v2_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
         elif (mode == "yellow"):
             print("clearing yellow");
-            self.v0_yellow = {'x': [], 'y': [], 'z': []}
-            self.v0_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+            if (source0):
+                print(" clearing yellow source0");
+                self.v0_yellow = {'x': [], 'y': [], 'z': []}
+                self.v0_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+            if (source1):
+                print(" clearing yellow source1");
+                self.v1_yellow = {'x': [], 'y': [], 'z': []}
+                self.v1_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
+
+            if (source2):
+                print(" clearing yellow source2");
+                self.v2_yellow = {'x': [], 'y': [], 'z': []}
+                self.v2_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
         return
 
@@ -295,10 +482,10 @@ class OL_3D_Plot(QtGui.QWidget):
 
         plot_xyz = np.vstack([v0_xArray, v0_yArray, v0_zArray]).transpose()
 
-        self.trace_red = gl.GLLinePlotItem(pos=plot_xyz, color = pg.glColor(244, 66, 66), antialias = TRUE)
-        self.trace_blue = gl.GLLinePlotItem(pos=plot_xyz, color=pg.glColor(66, 100, 244), antialias=TRUE)
-        self.trace_green = gl.GLLinePlotItem(pos=plot_xyz, color=pg.glColor(66, 244, 104), antialias=TRUE)
-        self.trace_yellow = gl.GLLinePlotItem(pos=plot_xyz, color=pg.glColor(244, 244, 66), antialias=TRUE)
+        self.trace_red = gl.GLLinePlotItem(pos=plot_xyz, color = pg.glColor(244, 66, 66), antialias = True)
+        self.trace_blue = gl.GLLinePlotItem(pos=plot_xyz, color=pg.glColor(66, 100, 244), antialias= True)
+        self.trace_green = gl.GLLinePlotItem(pos=plot_xyz, color=pg.glColor(66, 244, 104), antialias= True)
+        self.trace_yellow = gl.GLLinePlotItem(pos=plot_xyz, color=pg.glColor(244, 244, 66), antialias= True)
         self.plot.addItem(self.trace_red)
         self.plot.addItem(self.trace_blue)
         self.plot.addItem(self.trace_green)
