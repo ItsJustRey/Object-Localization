@@ -44,22 +44,20 @@ class OL_GUI(QDialog):
         self.button_clear.clicked.connect(lambda: self.clear("all", True, True, True))
 
         # SET UP 3D PLOT
-        #self.plot_v0 = OL_3D_Plot(self)
-        #self.plot1 = OL_3D_Plot(self)
-        #self.plot2 = OL_3D_Plot(self)
-        #self.plot3 = OL_3D_Plot(self)
-        #self.layout_plot.addWidget(self.plot_v0)
-        #self.layout_plot.addWidget(self.plot1)
-        #self.layout_plot.addWidget(self.plot2)
-        #self.layout_plot.addWidget(self.plot3)
+        self.plot_v0 = OL_3D_Plot(self)
+        self.plot_v1 = OL_3D_Plot(self)
+        self.plot_v2 = OL_3D_Plot(self)
+        self.layout_plot.addWidget(self.plot_v0)
+        self.layout_plot.addWidget(self.plot_v1)
+        self.layout_plot.addWidget(self.plot_v2)
 
         # INITIAL VIDEO SOURCES (SUBJECT TO CHANGE BY USER)
         self.VIDEO_SOURCE_0 = 0
-        self.VIDEO_SOURCE_1 = 1
-        self.VIDEO_SOURCE_2 = 2
+        self.VIDEO_SOURCE_1 = 0
+        self.VIDEO_SOURCE_2 = 0
 
         # COMBO BOXES
-        comboBoxOptions = ["0", "1", "2"]
+        comboBoxOptions = ["0", "1", "2", "Video1.mp4", "Video2.mp4", "Video3.mp4"]
         self.comboBox_video0.addItems(comboBoxOptions)
         self.comboBox_video0.currentTextChanged.connect(self.comboBox_video0_changed)
         self.comboBox_video0.setCurrentIndex(comboBoxOptions.index('0'))
@@ -98,25 +96,27 @@ class OL_GUI(QDialog):
         self.label_comboBox_video2.hide()
 
         # INITIALIZE VIDEO 0 FRAMES AND DATA
-        self.video0 = cv2.VideoCapture(int(self.VIDEO_SOURCE_0))
-        self.video0.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        self.video0.set(cv2.CAP_PROP_FRAME_HEIGHT, 800)
+        #self.video0 = cv2.VideoCapture(int(self.VIDEO_SOURCE_0))
+        self.video0 = cv2.VideoCapture(self.VIDEO_SOURCE_0)
+        self.video0.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.video0.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
         # INITIALIZE VIDEO 1 FRAMES AND DATA
-        self.video1 = cv2.VideoCapture(int(self.VIDEO_SOURCE_1))
-        self.video1.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        self.video1.set(cv2.CAP_PROP_FRAME_HEIGHT, 800)
+        #self.video1 = cv2.VideoCapture(int(self.VIDEO_SOURCE_1))
+        self.video1 = cv2.VideoCapture(self.VIDEO_SOURCE_1)
+        self.video1.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.video1.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
         # INITIALIZE VIDEO 2 FRAMES AND DATA
-        self.video2 = cv2.VideoCapture(int(self.VIDEO_SOURCE_2))
-        self.video2.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        self.video2.set(cv2.CAP_PROP_FRAME_HEIGHT, 800)
+        self.video2 = cv2.VideoCapture(self.VIDEO_SOURCE_2)
+        self.video2.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.video2.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
         # CREATE TIMER THREAD TO UPDATE FRAME EVERY (x) milliseconds
         self.timer = QTimer(self)
         self.timer.setTimerType(QtCore.Qt.PreciseTimer)
         self.timer.timeout.connect(self.update_frame)
-        self.timer.start(1000.0 / 30.0)
+        self.timer.start(1000/15)
 
 
 
@@ -273,13 +273,26 @@ class OL_GUI(QDialog):
             self.clear("all", False, False, True)
 
         # V0 PLOT MULTIPLE TRACES
-        # self.plot_v0.trace_red.setData(pos= np.vstack([self.v0_red['x'], self.v0_red['y'], self.v0_red['z']]).transpose())
-        # self.plot_v0.trace_green.setData(pos= np.vstack([self.v0_green['x'], self.v0_green['y'], self.v0_green['z']]).transpose())
-        # self.plot_v0.trace_blue.setData(pos= np.vstack([self.v0_blue['x'], self.v0_blue['y'], self.v0_blue['z']]).transpose())
-        # self.plot_v0.trace_yellow.setData(pos= np.vstack([self.v0_yellow['x'], self.v0_yellow['y'], self.v0_yellow['z']]).transpose())
-        self.v0_frame = cv2.flip(self.v0_frame, 1)
-        self.v1_frame = cv2.flip(self.v1_frame, 1)
-        self.v2_frame = cv2.flip(self.v2_frame, 1)
+        self.plot_v0.trace_red.setData(pos= np.vstack([self.v0_red['x'], self.v0_red['y'], self.v0_red['z']]).transpose())
+        self.plot_v0.trace_green.setData(pos= np.vstack([self.v0_green['x'], self.v0_green['y'], self.v0_green['z']]).transpose())
+        self.plot_v0.trace_blue.setData(pos= np.vstack([self.v0_blue['x'], self.v0_blue['y'], self.v0_blue['z']]).transpose())
+        self.plot_v0.trace_yellow.setData(pos= np.vstack([self.v0_yellow['x'], self.v0_yellow['y'], self.v0_yellow['z']]).transpose())
+
+        # V1 PLOT MULTIPLE TRACES
+        self.plot_v1.trace_red.setData(pos=np.vstack([self.v1_red['x'], self.v1_red['y'], self.v1_red['z']]).transpose())
+        self.plot_v1.trace_green.setData(pos=np.vstack([self.v1_green['x'], self.v1_green['y'], self.v1_green['z']]).transpose())
+        self.plot_v1.trace_blue.setData(pos=np.vstack([self.v1_blue['x'], self.v1_blue['y'], self.v1_blue['z']]).transpose())
+        self.plot_v1.trace_yellow.setData(pos=np.vstack([self.v1_yellow['x'], self.v1_yellow['y'], self.v1_yellow['z']]).transpose())
+
+        # V0 PLOT MULTIPLE TRACES
+        self.plot_v2.trace_red.setData(pos=np.vstack([self.v2_red['x'], self.v2_red['y'], self.v2_red['z']]).transpose())
+        self.plot_v2.trace_green.setData(pos=np.vstack([self.v2_green['x'], self.v2_green['y'], self.v2_green['z']]).transpose())
+        self.plot_v2.trace_blue.setData(pos=np.vstack([self.v2_blue['x'], self.v2_blue['y'], self.v2_blue['z']]).transpose())
+        self.plot_v2.trace_yellow.setData(pos=np.vstack([self.v2_yellow['x'], self.v2_yellow['y'], self.v2_yellow['z']]).transpose())
+
+        # self.v0_frame = cv2.flip(self.v0_frame, 1)
+        # self.v1_frame = cv2.flip(self.v1_frame, 1)
+        #self.v2_frame = cv2.flip(self.v2_frame, 1)
         self.display_frame(self.v0_frame, 0, 1)
         self.display_frame(self.v1_frame, 1, 1)
         self.display_frame(self.v2_frame, 2, 1)
