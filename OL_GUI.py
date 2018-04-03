@@ -23,7 +23,7 @@ class OL_GUI(QDialog):
         super(OL_GUI, self).__init__()
 
         loadUi('GUI.ui', self)
-        #self.showMaximized()
+        self.showMaximized()
 
         ap = argparse.ArgumentParser()
         ap.add_argument("-b", "--buffer", type=int, default=128, help="max buffer size")
@@ -52,34 +52,42 @@ class OL_GUI(QDialog):
         self.layout_plot.addWidget(self.plot_v2)
 
         # INITIAL VIDEO SOURCES (SUBJECT TO CHANGE BY USER)
-        self.VIDEO_SOURCE_0 = 0
-        self.VIDEO_SOURCE_1 = 0
-        self.VIDEO_SOURCE_2 = 0
+        # self.VIDEO_SOURCE_0 = "Video0.mp4"
+        #
+        # self.VIDEO_SOURCE_1 = "Video1.mp4"
+        #
+        # self.VIDEO_SOURCE_2 = "Video2.mp4"
 
         # COMBO BOXES
-        comboBoxOptions = ["0", "1", "2", "Video1.mp4", "Video2.mp4", "Video3.mp4"]
+        comboBoxOptions = ["0", "1", "2", "Video0.mp4", "Video1.mp4", "Video2.mp4"]
         self.comboBox_video0.addItems(comboBoxOptions)
         self.comboBox_video0.currentTextChanged.connect(self.comboBox_video0_changed)
-        self.comboBox_video0.setCurrentIndex(comboBoxOptions.index('0'))
+        self.comboBox_video0.setCurrentIndex(comboBoxOptions.index("Video0.mp4"))
 
         self.comboBox_video1.currentTextChanged.connect(self.comboBox_video1_changed)
         self.comboBox_video1.addItems(comboBoxOptions)
-        self.comboBox_video1.setCurrentIndex(comboBoxOptions.index('1'))
+        self.comboBox_video1.setCurrentIndex(comboBoxOptions.index("Video1.mp4"))
 
         self.comboBox_video2.currentTextChanged.connect(self.comboBox_video2_changed)
         self.comboBox_video2.addItems(comboBoxOptions)
-        self.comboBox_video2.setCurrentIndex(comboBoxOptions.index('2'))
+        self.comboBox_video2.setCurrentIndex(comboBoxOptions.index("Video2.mp4"))
 
 
 
     def comboBox_video0_changed(self):
         self.VIDEO_SOURCE_0 = self.comboBox_video0.currentText()
+        if(self.VIDEO_SOURCE_0 == '0' or self.VIDEO_SOURCE_0 == '1' or self.VIDEO_SOURCE_0 == '2'):
+            self.VIDEO_SOURCE_0 = int(self.VIDEO_SOURCE_0)
 
     def comboBox_video1_changed(self):
         self.VIDEO_SOURCE_1 = self.comboBox_video1.currentText()
+        if (self.VIDEO_SOURCE_1 == '0' or self.VIDEO_SOURCE_1 == '1' or self.VIDEO_SOURCE_1 == '2'):
+            self.VIDEO_SOURCE_1 = int(self.VIDEO_SOURCE_1)
 
     def comboBox_video2_changed(self):
         self.VIDEO_SOURCE_2 = self.comboBox_video2.currentText()
+        if (self.VIDEO_SOURCE_2 == '0' or self.VIDEO_SOURCE_2 == '1' or self.VIDEO_SOURCE_2 == '2'):
+            self.VIDEO_SOURCE_2 = int(self.VIDEO_SOURCE_2)
 
     # INITIALIZE VIDEO 0, VIDEO 1, and VIDEO 2 FRAMES AND DATA
     def start_video(self):
@@ -91,43 +99,47 @@ class OL_GUI(QDialog):
         self.comboBox_video0.hide()
         self.comboBox_video1.hide()
         self.comboBox_video2.hide()
-        self.label_comboBox_video0.hide()
-        self.label_comboBox_video1.hide()
-        self.label_comboBox_video2.hide()
 
         # INITIALIZE VIDEO 0 FRAMES AND DATA
         #self.video0 = cv2.VideoCapture(int(self.VIDEO_SOURCE_0))
         self.video0 = cv2.VideoCapture(self.VIDEO_SOURCE_0)
-        self.video0.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        self.video0.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.video0.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
+        self.video0.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
+        #self.fps_v0 = self.video0.get(cv2.CAP_PROP_FPS)
 
         # INITIALIZE VIDEO 1 FRAMES AND DATA
         #self.video1 = cv2.VideoCapture(int(self.VIDEO_SOURCE_1))
         self.video1 = cv2.VideoCapture(self.VIDEO_SOURCE_1)
-        self.video1.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        self.video1.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.video1.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
+        self.video1.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
 
         # INITIALIZE VIDEO 2 FRAMES AND DATA
         self.video2 = cv2.VideoCapture(self.VIDEO_SOURCE_2)
-        self.video2.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        self.video2.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.video2.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
+        self.video2.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
 
         # CREATE TIMER THREAD TO UPDATE FRAME EVERY (x) milliseconds
         self.timer = QTimer(self)
         self.timer.setTimerType(QtCore.Qt.PreciseTimer)
         self.timer.timeout.connect(self.update_frame)
-        self.timer.start(1000/15)
+        self.timer.start(30)
 
 
 
     # GET VIDEO 0, VIDEO 1, and VIDEO 2 FRAMES AND DATA
     def update_frame(self):
+        if(not self.video0.isOpened() or not self.video1.isOpened() or not self.video2.isOpened()):
+            self.stop_video()
+            return
 
         print("----------------------------------------------------------------------------------------------")
         ####################################################################################################
         #                                       VIDEO 0
         ####################################################################################################
         ret, self.v0_frame = self.video0.read()
+        if ret == False:
+            self.stop_video()
+            return
 
         (self.v0_frame, self.v0_counter, self.v0_red_xyz_pts, self.v0_green_xyz_pts, self.v0_blue_xyz_pts, self.v0_yellow_xyz_pts, self.v0_isDetected) = Object_Localization.Object_Localization \
             (self.v0_frame, self.v0_counter, self.v0_red_xyz_pts['pts'], self.v0_green_xyz_pts['pts'], self.v0_blue_xyz_pts['pts'], self.v0_yellow_xyz_pts['pts'])
@@ -177,6 +189,9 @@ class OL_GUI(QDialog):
         #                                       VIDEO 1
         ####################################################################################################
         ret, self.v1_frame = self.video1.read()
+        if ret == False:
+            self.stop_video()
+            return
 
         (self.v1_frame, self.v1_counter, self.v1_red_xyz_pts, self.v1_green_xyz_pts, self.v1_blue_xyz_pts, self.v1_yellow_xyz_pts, self.v1_isDetected) = Object_Localization.Object_Localization\
             (self.v1_frame, self.v1_counter, self.v1_red_xyz_pts['pts'],self.v1_green_xyz_pts['pts'], self.v1_blue_xyz_pts['pts'],self.v1_yellow_xyz_pts['pts'])
@@ -227,6 +242,10 @@ class OL_GUI(QDialog):
         ####################################################################################################
 
         ret, self.v2_frame = self.video2.read()
+        if ret == False:
+            self.stop_video()
+            return
+
 
         (self.v2_frame, self.v2_counter, self.v2_red_xyz_pts, self.v2_green_xyz_pts, self.v2_blue_xyz_pts, self.v2_yellow_xyz_pts, self.v2_isDetected) = Object_Localization.Object_Localization \
             (self.v2_frame, self.v2_counter, self.v2_red_xyz_pts['pts'], self.v2_green_xyz_pts['pts'], self.v2_blue_xyz_pts['pts'], self.v2_yellow_xyz_pts['pts'])
@@ -332,9 +351,6 @@ class OL_GUI(QDialog):
         self.comboBox_video0.show()
         self.comboBox_video1.show()
         self.comboBox_video2.show()
-        self.label_comboBox_video0.show()
-        self.label_comboBox_video1.show()
-        self.label_comboBox_video2.show()
 
         # STOP TIMER THREAD AND RELEASE V0
         self.clear("all", True, True, True)
@@ -474,7 +490,6 @@ class OL_3D_Plot(QtGui.QWidget):
         self.plot = gl.GLViewWidget()
         self.plot.opts['distance'] = 500
         self.plot.setWindowTitle('3-Dimensional Plot')
-
         # create the background grids
         gx = gl.GLGridItem()
         gx.rotate(90, 0, 1, 0)

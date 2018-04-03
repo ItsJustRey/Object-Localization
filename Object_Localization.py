@@ -5,6 +5,7 @@ import imutils
 import numpy as np
 
 
+
 def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts):
 
     isv2 = imutils.is_cv2()
@@ -18,6 +19,10 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
     KNOWN_DISTANCE = 24.0
     KNOWN_WIDTH = 2.65
     marker = 30
+
+    POINTS_DIFF = 15
+    PREV_POINT = -1
+    BALL_RADIUS = 5
 
     focalLength = (marker * KNOWN_DISTANCE) / KNOWN_WIDTH
 
@@ -55,7 +60,7 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
     hsv = cv2.cvtColor(_frame, cv2.COLOR_BGR2HSV)
 
     for key, value in upper.items():
-        print("key: " + str(key))
+        #print("key: " + str(key))
         # construct a mask for the each color, then perform
         # a series of dilations and erosions to remove any small
         # blobs left in the mask
@@ -95,11 +100,11 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
             inches = distance_to_camera(KNOWN_WIDTH, focalLength, marker[1][0])
 
             # only proceed if the radius meets a minimum size
-            if radius > 1:
+            if radius > BALL_RADIUS:
                 # draw the circle and centroid on the frame
                 # cv2.circle(thisFrame, (int(x), int(y)), int(radius),(0, 255, 255), 2)
                 cv2.circle(_frame, (int(x), int(y)), int(radius), colors[key], 2)
-                cv2.circle(_frame, center, 5, (0, 0, 255), -1)
+                cv2.circle(_frame, center, BALL_RADIUS, (0, 0, 255), -1)
 
                 if(key == "red"):
                     isDetected['red'] = True
@@ -120,7 +125,7 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
 
             if (key == "red"):
 
-                print(" red pts length:\t" + str(len(_red_xyz_pts['pts'])))
+                #print(" red pts length:\t" + str(len(_red_xyz_pts['pts'])))
                 for i in np.arange(1, len(_red_xyz_pts['pts'])):
                     # if either of the tracked points are None, ignore
                     if _red_xyz_pts['pts'][i - 1] is None or _red_xyz_pts['pts'] is None:
@@ -129,14 +134,24 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
 
                     # check to see if enough points have been accumulated in
                     # the buffer
-                    if _counter >= 10 and i == 1 and _red_xyz_pts['pts'][-1] is not None:
-                        _red_xyz_pts['x'] = _red_xyz_pts['pts'][-1][0] - _red_xyz_pts['pts'][i][0]
-                        _red_xyz_pts['y'] = _red_xyz_pts['pts'][-1][1] - _red_xyz_pts['pts'][i][1]
+                    if _counter >= 10 and i == 1 and _red_xyz_pts['pts'][PREV_POINT] is not None:
+                        if (abs(_red_xyz_pts['pts'][PREV_POINT][0]) - abs(_red_xyz_pts['pts'][i][0]) < POINTS_DIFF):
+                            _red_xyz_pts['x'] = (_red_xyz_pts['pts'][PREV_POINT][0] - _red_xyz_pts['pts'][i][0])
+                        else:
+                            #_red_xyz_pts['x'] = _red_xyz_pts['pts'][PREV_POINT][0]
+                            isDetected['red'] = False
+
+                        if (abs(_red_xyz_pts['pts'][PREV_POINT][1]) - abs(_red_xyz_pts['pts'][i][1]) < POINTS_DIFF):
+                            _red_xyz_pts['y'] = (_red_xyz_pts['pts'][PREV_POINT][1] - _red_xyz_pts['pts'][i][1])
+                        else:
+                            #_red_xyz_pts['y'] = _red_xyz_pts['pts'][PREV_POINT][1]
+                            isDetected['red'] = False
+
                         _red_xyz_pts['z'] = round(inches)
 
 
             elif (key == "green"):
-                print(" green pts length:\t" + str(len(_green_xyz_pts['pts'])))
+                #print(" green pts length:\t" + str(len(_green_xyz_pts['pts'])))
                 for i in np.arange(1, len(_green_xyz_pts['pts'])):
                     # if either of the tracked points are None, ignore
                     if _green_xyz_pts['pts'][i - 1] is None or _green_xyz_pts['pts'][i] is None:
@@ -145,15 +160,24 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
 
                     # check to see if enough points have been accumulated in
                     # the buffer
-                    if _counter >= 10 and i == 1 and _green_xyz_pts['pts'][-1] is not None:
+                    if _counter >= 10 and i == 1 and _green_xyz_pts['pts'][PREV_POINT] is not None:
                         # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
-                        _green_xyz_pts['x'] = _green_xyz_pts['pts'][-1][0] - _green_xyz_pts['pts'][i][0]
-                        _green_xyz_pts['y'] = _green_xyz_pts['pts'][-1][1] - _green_xyz_pts['pts'][i][1]
+                        if (abs(_green_xyz_pts['pts'][PREV_POINT][0]) - abs(_green_xyz_pts['pts'][i][0]) < POINTS_DIFF):
+                            _green_xyz_pts['x'] = _green_xyz_pts['pts'][PREV_POINT][0] - _green_xyz_pts['pts'][i][0]
+                        else:
+                            #_green_xyz_pts['x'] = _green_xyz_pts['pts'][PREV_POINT][0]
+                            isDetected['green'] = False
+
+                        if (abs(_green_xyz_pts['pts'][PREV_POINT][1]) - abs(_green_xyz_pts['pts'][i][1]) < POINTS_DIFF):
+                            _green_xyz_pts['y'] = _green_xyz_pts['pts'][PREV_POINT][1] - _green_xyz_pts['pts'][i][1]
+                        else:
+                            #_green_xyz_pts['y'] = _green_xyz_pts['pts'][PREV_POINT][1]
+                            isDetected['green'] = False
+
                         _green_xyz_pts['z'] = round(inches)
 
-
             elif (key == "blue"):
-                print(" blue pts length:\t" + str(len(_blue_xyz_pts['pts'])))
+                #print(" blue pts length:\t" + str(len(_blue_xyz_pts['pts'])))
                 for i in np.arange(1, len(_blue_xyz_pts['pts'])):
                     # if either of the tracked points are None, ignore
                     if _blue_xyz_pts['pts'][i - 1] is None or _blue_xyz_pts['pts'][i] is None:
@@ -162,16 +186,26 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
 
                     # check to see if enough points have been accumulated in
                     # the buffer
-                    if _counter >= 10 and i == 1 and _blue_xyz_pts['pts'][-1] is not None:
+                    if _counter >= 10 and i == 1 and _blue_xyz_pts['pts'][PREV_POINT] is not None:
                         # COMPUTE POINTS AND STORE INTO DATA STRUCTURE
-                        _blue_xyz_pts['x'] = _blue_xyz_pts['pts'][-1][0] - _blue_xyz_pts['pts'][i][0]
-                        _blue_xyz_pts['y'] = _blue_xyz_pts['pts'][-1][1] - _blue_xyz_pts['pts'][i][1]
+                        if (abs(_blue_xyz_pts['pts'][PREV_POINT][0]) - abs(_blue_xyz_pts['pts'][i][0]) < POINTS_DIFF):
+                            _blue_xyz_pts['x'] = _blue_xyz_pts['pts'][PREV_POINT][0] - _blue_xyz_pts['pts'][i][0]
+                        else:
+                            #_blue_xyz_pts['x'] = _blue_xyz_pts['pts'][PREV_POINT][0]
+                            isDetected['blue'] = False
+
+                        if (abs(_blue_xyz_pts['pts'][PREV_POINT][1]) - abs(_blue_xyz_pts['pts'][i][1]) < POINTS_DIFF):
+                            _blue_xyz_pts['y'] = _blue_xyz_pts['pts'][PREV_POINT][1] - _blue_xyz_pts['pts'][i][1]
+                        else:
+                            #_blue_xyz_pts['y'] = _blue_xyz_pts['pts'][PREV_POINT][1]
+                            isDetected['blue'] = False
+
                         _blue_xyz_pts['z'] = round(inches)
 
 
             elif (key == "yellow"):
 
-                print(" yellow pts length:\t" + str(len(_yellow_xyz_pts['pts'])))
+                #print(" yellow pts length:\t" + str(len(_yellow_xyz_pts['pts'])))
                 for i in np.arange(1, len(_yellow_xyz_pts['pts'])):
                     # if either of the tracked points are None, ignore
                     if _yellow_xyz_pts['pts'][i - 1] is None or _yellow_xyz_pts['pts'] is None:
@@ -180,17 +214,19 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
 
                     # check to see if enough points have been accumulated in
                     # the buffer
-                    if _counter >= 10 and i == 1 and _yellow_xyz_pts['pts'][-1] is not None:
+                    if _counter >= 10 and i == 1 and _yellow_xyz_pts['pts'][PREV_POINT] is not None:
 
-                        if(abs(_yellow_xyz_pts['pts'][-1][0] - _yellow_xyz_pts['pts'][i][0]) > 2 ):
-                            _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][-1][0] - _yellow_xyz_pts['pts'][i][0]
+                        if(abs(_yellow_xyz_pts['pts'][PREV_POINT][0]) - abs(_yellow_xyz_pts['pts'][i][0]) < POINTS_DIFF):
+                            _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][PREV_POINT][0] - _yellow_xyz_pts['pts'][i][0]
                         else:
-                            _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][-1][0]
+                            #_yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][PREV_POINT][0]
+                            isDetected['yellow'] = False
 
-                        if (abs(_yellow_xyz_pts['pts'][-1][1] - _yellow_xyz_pts['pts'][i][1]) > 2):
-                            _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][-1][1] - _yellow_xyz_pts['pts'][i][1]
+                        if (abs(_yellow_xyz_pts['pts'][PREV_POINT][1]) - abs(_yellow_xyz_pts['pts'][i][1]) < POINTS_DIFF):
+                            _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][PREV_POINT][1] - _yellow_xyz_pts['pts'][i][1]
                         else:
-                            _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][-1][1]
+                            #_yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][PREV_POINT][1]
+                            isDetected['yellow'] = False
 
                         _yellow_xyz_pts['z'] = round(inches)
 
@@ -204,23 +240,23 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
     _counter += 1
 
 
-    print("COUNTER: " + str(_counter) +
-          "\t\t\nRED:\t" + str(isDetected['red']) +
-          " \t\tx_red:\t\t" + str(_red_xyz_pts['x']) +
-          "\t\ty_red:\t\t" + str(_red_xyz_pts['y'])
-          + "\t\tz_red:\t\t" + str(_red_xyz_pts['z']) +
-          "\t\t\nGREEN:\t" + str(isDetected['green']) +
-          " \t\tx_green:\t" + str(_green_xyz_pts['x']) +
-          "\t\ty_green:\t" + str(_green_xyz_pts['y']) +
-          "\t\tz_green:\t" + str(_green_xyz_pts['z']) +
-          "\t\t\nBLUE:\t" + str(isDetected['blue']) +
-          " \t\tx_blue:\t\t" + str(_blue_xyz_pts['x']) +
-          "\t\ty_blue:\t\t" + str(_blue_xyz_pts['y']) +
-          "\t\tz_blue:\t\t" + str(_blue_xyz_pts['z']) +
-          "\t\t\nYELLOW:\t" + str(isDetected['yellow']) +
-          "\t\tx_yellow:\t" + str(_yellow_xyz_pts['x']) +
-          "\t\ty_yellow:\t" + str(_yellow_xyz_pts['y']) +
-          "\t\tz_yellow:\t" + str(_yellow_xyz_pts['z'])
-          )
+    # print("COUNTER: " + str(_counter) +
+    #       "\t\t\nRED:\t" + str(isDetected['red']) +
+    #       " \t\tx_red:\t\t" + str(_red_xyz_pts['x']) +
+    #       "\t\ty_red:\t\t" + str(_red_xyz_pts['y'])
+    #       + "\t\tz_red:\t\t" + str(_red_xyz_pts['z']) +
+    #       "\t\t\nGREEN:\t" + str(isDetected['green']) +
+    #       " \t\tx_green:\t" + str(_green_xyz_pts['x']) +
+    #       "\t\ty_green:\t" + str(_green_xyz_pts['y']) +
+    #       "\t\tz_green:\t" + str(_green_xyz_pts['z']) +
+    #       "\t\t\nBLUE:\t" + str(isDetected['blue']) +
+    #       " \t\tx_blue:\t\t" + str(_blue_xyz_pts['x']) +
+    #       "\t\ty_blue:\t\t" + str(_blue_xyz_pts['y']) +
+    #       "\t\tz_blue:\t\t" + str(_blue_xyz_pts['z']) +
+    #       "\t\t\nYELLOW:\t" + str(isDetected['yellow']) +
+    #       "\t\tx_yellow:\t" + str(_yellow_xyz_pts['x']) +
+    #       "\t\ty_yellow:\t" + str(_yellow_xyz_pts['y']) +
+    #       "\t\tz_yellow:\t" + str(_yellow_xyz_pts['z'])
+    #       )
     # print("counter: " + str(counter) + "\tpts: " + str(len(pts)) + " \t\t\tx: " + str(x) + "\t\t\ty: " + str(y) + "\t\t\tz: " + str(z))
     return _frame, _counter, _red_xyz_pts, _green_xyz_pts, _blue_xyz_pts, _yellow_xyz_pts, isDetected
