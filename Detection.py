@@ -6,9 +6,9 @@ import numpy as np
 
 
 
-def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts):
+def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts):
 
-    isv2 = imutils.is_cv2()
+    #isv2 = imutils.is_cv2()
 
     isDetected = {"red": False, "green": False, "blue": False, "yellow": False}
 
@@ -20,7 +20,7 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
     KNOWN_WIDTH = 2.65
     marker = 30
 
-    POINTS_DIFF = 15
+    POINTS_DIFF = 50
     PREV_POINT = -1
     BALL_RADIUS = 5
 
@@ -104,7 +104,7 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
                 # draw the circle and centroid on the frame
                 # cv2.circle(thisFrame, (int(x), int(y)), int(radius),(0, 255, 255), 2)
                 cv2.circle(_frame, (int(x), int(y)), int(radius), colors[key], 2)
-                cv2.circle(_frame, center, BALL_RADIUS, (0, 0, 255), -1)
+                cv2.circle(_frame, center, BALL_RADIUS, colors[key], -1)
 
                 if(key == "red"):
                     isDetected['red'] = True
@@ -216,16 +216,15 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
                     # the buffer
                     if _counter >= 10 and i == 1 and _yellow_xyz_pts['pts'][PREV_POINT] is not None:
 
-                        if(abs(_yellow_xyz_pts['pts'][PREV_POINT][0]) - abs(_yellow_xyz_pts['pts'][i][0]) < POINTS_DIFF):
-                            _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][PREV_POINT][0] - _yellow_xyz_pts['pts'][i][0]
+                        if abs(_yellow_xyz_pts['pts'][PREV_POINT][0] - _yellow_xyz_pts['pts'][i][0]) < POINTS_DIFF:
+                            _yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][i][0]
                         else:
                             #_yellow_xyz_pts['x'] = _yellow_xyz_pts['pts'][PREV_POINT][0]
                             isDetected['yellow'] = False
 
-                        if (abs(_yellow_xyz_pts['pts'][PREV_POINT][1]) - abs(_yellow_xyz_pts['pts'][i][1]) < POINTS_DIFF):
-                            _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][PREV_POINT][1] - _yellow_xyz_pts['pts'][i][1]
+                        if abs(_yellow_xyz_pts['pts'][PREV_POINT][1] - _yellow_xyz_pts['pts'][i][1]) < POINTS_DIFF:
+                            _yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][i][1]
                         else:
-                            #_yellow_xyz_pts['y'] = _yellow_xyz_pts['pts'][PREV_POINT][1]
                             isDetected['yellow'] = False
 
                         _yellow_xyz_pts['z'] = round(inches)
@@ -240,23 +239,23 @@ def Object_Localization(frame, counter, red_pts, green_pts, blue_pts, yellow_pts
     _counter += 1
 
 
-    # print("COUNTER: " + str(_counter) +
-    #       "\t\t\nRED:\t" + str(isDetected['red']) +
-    #       " \t\tx_red:\t\t" + str(_red_xyz_pts['x']) +
-    #       "\t\ty_red:\t\t" + str(_red_xyz_pts['y'])
-    #       + "\t\tz_red:\t\t" + str(_red_xyz_pts['z']) +
-    #       "\t\t\nGREEN:\t" + str(isDetected['green']) +
-    #       " \t\tx_green:\t" + str(_green_xyz_pts['x']) +
-    #       "\t\ty_green:\t" + str(_green_xyz_pts['y']) +
-    #       "\t\tz_green:\t" + str(_green_xyz_pts['z']) +
-    #       "\t\t\nBLUE:\t" + str(isDetected['blue']) +
-    #       " \t\tx_blue:\t\t" + str(_blue_xyz_pts['x']) +
-    #       "\t\ty_blue:\t\t" + str(_blue_xyz_pts['y']) +
-    #       "\t\tz_blue:\t\t" + str(_blue_xyz_pts['z']) +
-    #       "\t\t\nYELLOW:\t" + str(isDetected['yellow']) +
-    #       "\t\tx_yellow:\t" + str(_yellow_xyz_pts['x']) +
-    #       "\t\ty_yellow:\t" + str(_yellow_xyz_pts['y']) +
-    #       "\t\tz_yellow:\t" + str(_yellow_xyz_pts['z'])
-    #       )
-    # print("counter: " + str(counter) + "\tpts: " + str(len(pts)) + " \t\t\tx: " + str(x) + "\t\t\ty: " + str(y) + "\t\t\tz: " + str(z))
+    print("COUNTER: " + str(_counter) +
+          # "\t\t\nRED:\t" + str(isDetected['red']) +
+          # " \t\tx_red:\t\t" + str(_red_xyz_pts['x']) +
+          # "\t\ty_red:\t\t" + str(_red_xyz_pts['y']) +
+          # "\t\tz_red:\t\t" + str(_red_xyz_pts['z']) +
+          # "\t\t\nGREEN:\t" + str(isDetected['green']) +
+          # " \t\tx_green:\t" + str(_green_xyz_pts['x']) +
+          # "\t\ty_green:\t" + str(_green_xyz_pts['y']) +
+          # "\t\tz_green:\t" + str(_green_xyz_pts['z']) +
+          # "\t\t\nBLUE:\t" + str(isDetected['blue']) +
+          # " \t\tx_blue:\t\t" + str(_blue_xyz_pts['x']) +
+          # "\t\ty_blue:\t\t" + str(_blue_xyz_pts['y']) +
+          # "\t\tz_blue:\t\t" + str(_blue_xyz_pts['z']) +
+          # "\t\t\nYELLOW:\t" + str(isDetected['yellow']) +
+          "\t\tx_yellow:\t" + str(_yellow_xyz_pts['x']) +
+          "\t\ty_yellow:\t" + str(_yellow_xyz_pts['y']) +
+          "\t\tz_yellow:\t" + str(_yellow_xyz_pts['z']) )
+          # )
+    #print("counter: " + str(counter) + "\tpts: " + str(len(pts)) + " \t\t\tx: " + str(x) + "\t\t\ty: " + str(y) + "\t\t\tz: " + str(z))
     return _frame, _counter, _red_xyz_pts, _green_xyz_pts, _blue_xyz_pts, _yellow_xyz_pts, isDetected

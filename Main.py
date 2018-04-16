@@ -1,12 +1,10 @@
-# import the necessary packages
+## import the necessary packages
 import sys
 from PyQt5.QtWidgets import QApplication
-import OL_GUI
-
-
+import GUI_Detection
 
 app = QApplication(sys.argv)
-widget = OL_GUI.OL_GUI()
+widget = GUI_Detection.GUI_Detection()
 widget.show()
 sys.exit(app.exec_())
 
