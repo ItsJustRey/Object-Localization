@@ -91,6 +91,17 @@ class GUI_Detection(QDialog):
         self.comboBox_video2.addItems(comboBoxOptions)
         self.comboBox_video2.setCurrentIndex(comboBoxOptions.index("3"))
 
+    def __del__(self):
+        self.v0_frame = None
+        self.v1_frame = None
+        self.v2_frame = None
+        self.stop_video()
+
+    def closeEvent(self, event):
+        print("closing")
+        # here you can terminate your threads and do other stuff
+
+        self.stop_video()
     def red_state_changed(self):
         if self.checkBox_red.isChecked():
             self.detect_red = True
@@ -128,6 +139,7 @@ class GUI_Detection(QDialog):
             self.VIDEO_SOURCE_1 = self.comboBox_video1.currentText()
             if (self.VIDEO_SOURCE_1 == '0' or self.VIDEO_SOURCE_1 == '1' or self.VIDEO_SOURCE_1 == '2' or self.VIDEO_SOURCE_1 == '3'):
                 self.VIDEO_SOURCE_1 = int(self.VIDEO_SOURCE_1)
+
         except Exception as e:
             print(e)
 
@@ -150,18 +162,12 @@ class GUI_Detection(QDialog):
             self.comboBox_video0.hide()
             self.comboBox_video1.hide()
             self.comboBox_video2.hide()
-            # INITIALIZE VIDEO 0 FRAMES AND DATA
-            #self.video0 = cv2.VideoCapture(int(self.VIDEO_SOURCE_0))
             self.video0 = cv2.VideoCapture(self.VIDEO_SOURCE_0)
             self.video0.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
             self.video0.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
-            #self.fps_v0 = self.video0.get(cv2.CAP_PROP_FPS)
-            # INITIALIZE VIDEO 1 FRAMES AND DATA
-            #self.video1 = cv2.VideoCapture(int(self.VIDEO_SOURCE_1))
             self.video1 = cv2.VideoCapture(self.VIDEO_SOURCE_1)
             self.video1.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
             self.video1.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
-            # INITIALIZE VIDEO 2 FRAMES AND DATA
             self.video2 = cv2.VideoCapture(self.VIDEO_SOURCE_2)
             self.video2.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
             self.video2.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
@@ -176,6 +182,7 @@ class GUI_Detection(QDialog):
             self.timer1.setTimerType(QtCore.Qt.PreciseTimer)
             self.timer1.timeout.connect(self.update_frame1)
             self.timer1.start()
+
 
             self.timer2 = QTimer(self)
             self.timer2.setTimerType(QtCore.Qt.PreciseTimer)
@@ -704,10 +711,14 @@ class GUI_Detection(QDialog):
     def stop_video(self):
         try:
 
-
             self.video0.release()
+            self.timer0.stop()
+
             self.video1.release()
+            self.timer1.stop()
             self.video2.release()
+            self.timer2.stop()
+
             # HIDE/SHOW GUI ELEMENTS
             self.button_start.show()
             self.button_stop.hide()
@@ -716,11 +727,8 @@ class GUI_Detection(QDialog):
             self.comboBox_video1.show()
             self.comboBox_video2.show()
 
-            # STOP TIMER THREAD AND RELEASE V0
             self.clear("all", True, True, True)
-            self.timer0.stop()
-            self.timer1.stop()
-            self.timer2.stop()
+
         except Exception as e:
             print(e)
 
@@ -884,18 +892,20 @@ class OL_3D_Plot(QtGui.QWidget):
         layout = QtGui.QHBoxLayout()
 
         self.plot = gl.GLViewWidget()
-        self.plot.opts['distance'] = 150
+        self.plot.opts['distance'] = 1500
         self.plot.setWindowTitle('3-Dimensional Plot')
         # create the background grids
         gx = gl.GLGridItem()
         gx.rotate(90, 0, 1, 0)
-        gx.translate(-10, 0, 0)
+        #gx.translate(-10, 0, 0)
         gy = gl.GLGridItem()
         gy.rotate(90, 1, 0, 0)
-        gy.translate(0, -10, 0)
+        #gy.translate(0, -10, 0)
         gz = gl.GLGridItem()
-        gz.translate(0, 0, -10)
-
+        #gz.translate(0, 0, -10)
+        gx.scale(50, 50, 50)
+        gy.scale(50, 50, 50)
+        gz.scale(50, 50, 50)
         self.plot.addItem(gx)
         self.plot.addItem(gy)
         self.plot.addItem(gz)

@@ -30,13 +30,14 @@ def Localization(v0_frame, v1_frame, v2_frame,
             print("PEASE")
             _global_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None, 'length2': None}
             print("here0.1")
-            if ((len(v0_xyz_pts['pts']) > MIN_NUM_POINTS) and (len(v1_xyz_pts['pts']) > MIN_NUM_POINTS) and (len(v2_xyz_pts['pts']) > MIN_NUM_POINTS)):
-                _global_xyz_pts['length0'] = (v0_xyz_pts['x'][1] - X_REF_POINT) * math.cos(V0_ANGLE) + \
-                                                  (v0_xyz_pts['y'][1] - Y_REF_POINT) * math.sin(V0_ANGLE)
+            if ((len(v0_xyz_pts['pts']) > MIN_NUM_POINTS) and (len(v1_xyz_pts['pts']) > MIN_NUM_POINTS)): # and (len(v2_xyz_pts['pts']) > MIN_NUM_POINTS)):
+                print(int((v0_xyz_pts['x'][-1] - X_REF_POINT) * math.cos(V0_ANGLE) + \
+                                                  (v0_xyz_pts['y'][-1] - Y_REF_POINT) * math.sin(V0_ANGLE)))
                 print("here0.2")
-                _global_xyz_pts['length1'] = (v1_xyz_pts['x'][1] - X_REF_POINT) * math.cos(V1_ANGLE) + \
-                                                  (v1_xyz_pts['y'][1] - Y_REF_POINT) * math.sin(V1_ANGLE)
+                _global_xyz_pts['length1'] = (v1_xyz_pts['x'][-1] - X_REF_POINT) * math.cos(V1_ANGLE) + \
+                                                  (v1_xyz_pts['y'][-1] - Y_REF_POINT) * math.sin(V1_ANGLE)
             else:
+                print("NOT ENOUGH")
                 return
             print("here0.3")
             determinant = (1 / ((math.cos(V0_ANGLE)) * (math.sin(V1_ANGLE)) - (math.sin(V0_ANGLE)) * (math.cos(V1_ANGLE))))
@@ -48,10 +49,8 @@ def Localization(v0_frame, v1_frame, v2_frame,
             print(inverseMatrix)
 
             GLOBAL_REF_ADD = [
-                inverseMatrix[0][0] * _global_xyz_pts['length0'] + inverseMatrix[0][1] * _global_xyz_pts[
-                    'length1'],
-                inverseMatrix[1][0] * _global_xyz_pts['length0'] + inverseMatrix[1][1] * _global_xyz_pts[
-                    'length1']]
+                inverseMatrix[0][0] * _global_xyz_pts['length0'] + inverseMatrix[0][1] * _global_xyz_pts['length1'],
+                inverseMatrix[1][0] * _global_xyz_pts['length0'] + inverseMatrix[1][1] * _global_xyz_pts['length1']]
             print("here2")
             _global_xyz_pts['x'] = round(X_REF_POINT + GLOBAL_REF_ADD[0])
             _global_xyz_pts['y'] = round(Y_REF_POINT + GLOBAL_REF_ADD[1])
@@ -72,31 +71,9 @@ def Localization(v0_frame, v1_frame, v2_frame,
     if (v0_isDetected['green'] is True  and v1_isDetected['green'] is True):# or v2_isDetected['green']):
 
         _global_green_xyz_pts = calculate_global_x_y(v0_green_xyz_pts, v1_green_xyz_pts, v2_green_xyz_pts)
-    #if (v0_isDetected['blue'] is True and v1_isDetected['blue'] is True):# or v2_isDetected['blue']):
-    _global_blue_xyz_pts = calculate_global_x_y(v0_blue_xyz_pts, v1_blue_xyz_pts, v2_blue_xyz_pts)
-    #print(_global_blue_xyz_pts)
-    #else
 
-        # _global_blue_xyz_pts['length0'] = (v0_blue_xyz_pts['x'][-1] - X_REF_POINT) * math.cos(V0_ANGLE) +\
-        #                                  (v0_blue_xyz_pts['y'][-1] - Y_REF_POINT) * math.sin(V0_ANGLE)
-        #
-        # _global_blue_xyz_pts['length1'] = (v1_blue_xyz_pts['x'][-1] - X_REF_POINT) * math.cos(V1_ANGLE) +\
-        #                                  (v1_blue_xyz_pts['y'][-1] - Y_REF_POINT) * math.sin(V1_ANGLE)
-        #
-        # determinant = (1 / ((math.cos(V0_ANGLE)) * (math.sin(V1_ANGLE)) - (math.sin(V0_ANGLE)) * (math.cos(V1_ANGLE))))
-        # print(determinant)
-        # inverseMatrix = [determinant * round(math.sin(V1_ANGLE)), determinant * round(math.sin(V0_ANGLE))], \
-        #                 [determinant * round(math.cos(V1_ANGLE)), determinant * round(math.cos(V0_ANGLE))]
-        #
-        # print(inverseMatrix)
-        #
-        # GLOBAL_REF_ADD = [inverseMatrix[0][0]*_global_blue_xyz_pts['length0']+ inverseMatrix[0][1]*_global_blue_xyz_pts['length1'],
-        #                   inverseMatrix[1][0]*_global_blue_xyz_pts['length0']+ inverseMatrix[1][1]*_global_blue_xyz_pts['length1']]
-        #
-        # _global_blue_xyz_pts['x'] = X_REF_POINT + GLOBAL_REF_ADD[0]
-        # _global_blue_xyz_pts['y'] = Y_REF_POINT + GLOBAL_REF_ADD[1]
-
-
+    if (v0_isDetected['blue'] is True and v1_isDetected['blue'] is True):# or v2_isDetected['blue']):
+        _global_blue_xyz_pts = calculate_global_x_y(v0_blue_xyz_pts, v1_blue_xyz_pts, v2_blue_xyz_pts)
 
 
     if (v0_isDetected['yellow'] is True and v1_isDetected['yellow'] is True):# v2_isDetected['yellow']):

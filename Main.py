@@ -8,6 +8,7 @@ widget = GUI_Detection.GUI_Detection()
 widget.show()
 sys.exit(app.exec_())
 
+
 #def main():
 #    # start the app
 #   print("[INFO] starting...")

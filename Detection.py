@@ -5,7 +5,6 @@ import imutils
 import numpy as np
 import random
 
-
 def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_red, detect_green, detect_blue, detect_yellow):
 
     isDetected = {"red": False, "green": False, "blue": False, "yellow": False}
