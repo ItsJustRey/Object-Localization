@@ -51,10 +51,10 @@ class GUI_Detection(QDialog):
         self.checkBox_yellow.stateChanged.connect(self.yellow_state_changed)
 
         # INITIALIZE CHECK BOX
-        self.detect_red = True
-        self.detect_green = True
-        self.detect_blue = True
-        self.detect_yellow = True
+        self.detect_red = False
+        self.detect_green = False
+        self.detect_blue = False
+        self.detect_yellow = False
         self.checkBox_red.setChecked( self.detect_red)
         self.checkBox_green.setChecked( self.detect_green)
         self.checkBox_blue.setChecked( self.detect_blue)
@@ -660,9 +660,9 @@ class GUI_Detection(QDialog):
 
 
             self.v0_frame, self.v1_frame, self.v2_frame = Localization.Localization(self.v0_frame, self.v1_frame, self.v2_frame,
-                                        self.v0_blue_xyz_pts, self.v0_yellow_xyz_pts,self.v0_red_xyz_pts,self.v0_green_xyz_pts,  self.v0_isDetected,
-                                        self.v1_blue_xyz_pts, self.v1_yellow_xyz_pts, self.v1_red_xyz_pts, self.v1_green_xyz_pts, self.v1_isDetected,
-                                        self.v2_blue_xyz_pts,self.v2_yellow_xyz_pts,self.v2_red_xyz_pts,self.v2_green_xyz_pts,  self.v2_isDetected)
+                                        self.v0_blue, self.v0_yellow,self.v0_red,self.v0_green,  self.v0_isDetected,
+                                        self.v1_blue, self.v1_yellow, self.v1_red, self.v1_green, self.v1_isDetected,
+                                        self.v2_blue,self.v2_yellow,self.v2_red,self.v2_green,  self.v2_isDetected)
 
             self.display_frame(self.v0_frame, 0, 1)
             self.display_frame(self.v1_frame, 1, 1)
