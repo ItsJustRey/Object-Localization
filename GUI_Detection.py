@@ -64,6 +64,8 @@ class GUI_Detection(QDialog):
         self.plot_v0 = OL_3D_Plot(self)
         self.plot_v1 = OL_3D_Plot(self)
         self.plot_v2 = OL_3D_Plot(self)
+
+        self.plot_global = OL_3D_Plot(self)
         # self.plot_v0 = VIDEO_3D_Plot(self)
         # self.plot_v1 = VIDEO_3D_Plot(self)
         # self.plot_v2 = VIDEO_3D_Plot(self)
@@ -71,6 +73,8 @@ class GUI_Detection(QDialog):
         self.layout_plot.addWidget(self.plot_v0)
         self.layout_plot.addWidget(self.plot_v1)
         self.layout_plot.addWidget(self.plot_v2)
+
+        self.layout_global.addWidget(self.plot_global)
 
         # INITIAL VIDEO SOURCES (SUBJECT TO CHANGE BY USER)
         self.VIDEO_SOURCE_0 = "1"
@@ -171,6 +175,16 @@ class GUI_Detection(QDialog):
             self.video2 = cv2.VideoCapture(self.VIDEO_SOURCE_2)
             self.video2.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
             self.video2.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
+
+            # self.fig = plt.figure()
+            # self.ax = self.fig.gca(projection='3d')
+            # self.ax.set_xlim(-255, 255)
+            # self.ax.set_ylim(-255, 255)
+            # self.ax.set_zlim(-255, 255)
+            # self.ax.set_xlabel('X-Direction')
+            # self.ax.set_ylabel('Y-Direction')
+            # self.ax.set_zlabel('Z-Direction')
+
 
             # CREATE TIMER THREAD TO UPDATE FRAME EVERY (x) milliseconds
             self.timer0 = QTimer(self)
@@ -659,11 +673,61 @@ class GUI_Detection(QDialog):
             self.plot_v2.trace_yellow.setData(pos=np.vstack([self.v2_yellow['x'], self.v2_yellow['y'], self.v2_yellow['z']]).transpose())
 
 
-            self.v0_frame, self.v1_frame, self.v2_frame = Localization.Localization(self.v0_frame, self.v1_frame, self.v2_frame,
+
+            print("BEFORE LOCALIZATION 0 ")
+
+            (self.v0_frame, self.v1_frame, self.v2_frame, self.global_red_xyz_pts, self.global_green_xyz_pts, self.global_blue_xyz_pts, self.global_yellow_xyz_pts) = \
+                Localization.Localization(self.v0_frame, self.v1_frame, self.v2_frame,
                                         self.v0_blue, self.v0_yellow,self.v0_red,self.v0_green,  self.v0_isDetected,
                                         self.v1_blue, self.v1_yellow, self.v1_red, self.v1_green, self.v1_isDetected,
                                         self.v2_blue,self.v2_yellow,self.v2_red,self.v2_green,  self.v2_isDetected)
 
+            print("AFTER LOCALIZATION 0 ")
+
+            if(self.global_red_xyz_pts['isCalculated'] is True):
+                print("appending global_red")
+                self.global_red['x'].append(self.global_red_xyz_pts['x'])
+                self.global_red['y'].append(self.global_red_xyz_pts['y'])
+                self.global_red['z'].append(self.global_red_xyz_pts['z'])
+
+            if(self.global_green_xyz_pts['isCalculated'] is True):
+                print("appending global_green")
+                self.global_green['x'].append(self.global_green_xyz_pts['x'])
+                self.global_green['y'].append(self.global_green_xyz_pts['y'])
+                self.global_green['z'].append(self.global_green_xyz_pts['z'])
+
+            if(self.global_blue_xyz_pts['isCalculated'] is True):
+                print("appending global_blue")
+                self.global_blue['x'].append(self.global_blue_xyz_pts['x'])
+                self.global_blue['y'].append(self.global_blue_xyz_pts['y'])
+                self.global_blue['z'].append(self.global_blue_xyz_pts['z'])
+
+            if(self.global_yellow_xyz_pts['isCalculated'] is True):
+                print("appending global_yellow")
+                self.global_yellow['x'].append(self.global_yellow_xyz_pts['x'])
+                self.global_yellow['y'].append(self.global_yellow_xyz_pts['y'])
+                self.global_yellow['z'].append(self.global_yellow_xyz_pts['z'])
+
+            print("AFTER LOCALIZATION 1")
+
+
+            self.plot_global.trace_red.setData(pos=np.vstack(
+                [self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
+
+            self.plot_global.trace_green.setData(pos=np.vstack(
+                [self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
+
+
+            self.plot_global.trace_blue.setData(pos=np.vstack(
+                [self.global_blue['x'], self.global_blue['y'], self.global_blue['z']]).transpose())
+
+            self.plot_global.trace_yellow.setData(pos=np.vstack(
+                [self.global_yellow['x'], self.global_yellow['y'], self.global_yellow['z']]).transpose())
+            print("AFTER LOCALIZATION 2")
+            # self.ax.plot(self.global_yellow['x'], self.global_yellow['y'], self.global_yellow['y'],
+            #              label='Spatial Coordinates')
+            # self.ax.set_color_cycle('black')
+            # self.fig.canvas.draw()
             self.display_frame(self.v0_frame, 0, 1)
             self.display_frame(self.v1_frame, 1, 1)
             self.display_frame(self.v2_frame, 2, 1)
@@ -738,7 +802,21 @@ class GUI_Detection(QDialog):
         try:
             newDeque = deque(maxlen= self.args["buffer"])
             if(mode == "all"):
-                print("clearing all");
+                print("clearing all")
+                self.global_red = {'x': [], 'y': [], 'z': []}
+                self.global_green = {'x': [], 'y': [], 'z': []}
+                self.global_blue = {'x': [], 'y': [], 'z': []}
+                self.global_yellow = {'x': [], 'y': [], 'z': []}
+
+                self.global_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
+                                       'length2': None, 'isCalculated': False}
+                self.global_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
+                                         'length2': None, 'isCalculated': False}
+                self.global_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
+                                        'length2': None, 'isCalculated': False}
+                self.global_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
+                                          'length2': None, 'isCalculated': False}
+
                 if(source0):
                     #(" clearing all source0");
                     self.v0_red = {'x': [], 'y': [], 'z': []}
@@ -753,6 +831,7 @@ class GUI_Detection(QDialog):
                     self.v0_yellow = {'x': [], 'y': [], 'z': []}
                     self.v0_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
                     self.v0_counter = 0
+
 
                 if (source1):
                     #print(" clearing all source1");
@@ -784,8 +863,12 @@ class GUI_Detection(QDialog):
                     self.v2_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
                     self.v2_counter = 0
 
+
             elif(mode == "red"):
-                #print("clearing red");
+
+                # self.global_red = {'x': [], 'y': [], 'z': []}
+                # self.global_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
+                #                        'length2': None}
                 if (source0):
                     #print(" clearing red source0");
                     self.v0_red = {'x': [], 'y': [], 'z': []}
@@ -802,7 +885,10 @@ class GUI_Detection(QDialog):
                     self.v2_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
             elif (mode == "green"):
-                #print("clearing green");
+
+                # self.global_green = {'x': [], 'y': [], 'z': []}
+                # self.global_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
+                #                           'length2': None}
                 if (source0):
                     #print(" clearing green source0");
                     self.v0_green = {'x': [], 'y': [], 'z': []}
@@ -819,7 +905,10 @@ class GUI_Detection(QDialog):
                     self.v2_green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
             elif (mode == "blue"):
-                #print("clearing blue");
+
+                # self.global_blue = {'x': [], 'y': [], 'z': []}
+                # self.global_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
+                #                           'length2': None}
                 if (source0):
                     #print(" clearing blue source0");
                     self.v0_blue = {'x': [], 'y': [], 'z': []}
@@ -836,7 +925,11 @@ class GUI_Detection(QDialog):
                     self.v2_blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': newDeque}
 
             elif (mode == "yellow"):
-                #print("clearing yellow");
+
+                # self.global_yellow = {'x': [], 'y': [], 'z': []}
+                # self.global_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
+                #                             'length2': None}
+
                 if (source0):
                     #print(" clearing yellow source0");
                     self.v0_yellow = {'x': [], 'y': [], 'z': []}
@@ -856,7 +949,6 @@ class GUI_Detection(QDialog):
 
         except Exception as e:
             print(e)
-        #print(" exiting clearing");
 
 
 class VIDEO_3D_Plot(QtGui.QWidget):
@@ -865,20 +957,20 @@ class VIDEO_3D_Plot(QtGui.QWidget):
         layout = QtGui.QHBoxLayout()
         self.plot = pg.PlotWidget()
         self.plot.setBackground('w')
-        self.ax = plt.axes()
+        self.fig = plt.figure()
+        self.ax = self.fig.gca(projection='3d')
         v0_xArray = []
         v0_yArray = []
+        v0_zArray = []
+        plot_xyz = np.vstack([v0_xArray, v0_yArray, v0_zArray]).transpose()
 
-        #plot_xyz = np.vstack([v0_xArray, v0_yArray, v0_zArray]).transpose()
-
-
-        self.trace_red = self.ax.plot(v0_xArray,v0_yArray)
-        self.trace_blue = self.ax.plot(v0_xArray,v0_yArray)
-        self.trace_green = self.ax.plot(v0_xArray,v0_yArray)
-        self.trace_yellow = self.ax.plot(v0_xArray,v0_yArray)
-        self.plot.addItem(self.trace_red)
-        self.plot.addItem(self.trace_blue)
-        self.plot.addItem(self.trace_green)
+        # self.trace_red = self.ax.plot(pos = plot_xyz)
+        # self.trace_blue = self.ax.plot(v0_xArray,v0_yArray)
+        # self.trace_green = self.ax.plot(v0_xArray,v0_yArray)
+        self.trace_yellow = pg.PlotCurveItem(pos = plot_xyz, color=pg.glColor(244, 244, 66), antialias= True)
+        # self.plot.addItem(self.trace_red)
+        # self.plot.addItem(self.trace_blue)
+        # self.plot.addItem(self.trace_green)
         self.plot.addItem(self.trace_yellow)
         layout.addWidget(self.plot)
         self.setLayout(layout)
@@ -895,7 +987,7 @@ class OL_3D_Plot(QtGui.QWidget):
         self.plot.opts['distance'] = 1500
         self.plot.setWindowTitle('3-Dimensional Plot')
         # create the background grids
-        gx = gl.GLGridItem()
+        gx = gl.GLGridItem(color = 'k')
         gx.rotate(90, 0, 1, 0)
         #gx.translate(-10, 0, 0)
         gy = gl.GLGridItem()
@@ -903,9 +995,9 @@ class OL_3D_Plot(QtGui.QWidget):
         #gy.translate(0, -10, 0)
         gz = gl.GLGridItem()
         #gz.translate(0, 0, -10)
-        gx.scale(50, 50, 50)
-        gy.scale(50, 50, 50)
-        gz.scale(50, 50, 50)
+        gx.scale(25, 25, 25)
+        gy.scale(25, 25, 25)
+        gz.scale(25, 25, 25)
         self.plot.addItem(gx)
         self.plot.addItem(gy)
         self.plot.addItem(gz)
