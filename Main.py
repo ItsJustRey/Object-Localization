@@ -1,8 +1,8 @@
-## import the necessary packages
-import sys
+# import the necessary packages
 from PyQt5.QtWidgets import QApplication
+from pyqtgraph.Qt import QtCore
 
-from pyqtgraph.Qt import QtGui, QtCore
+import sys
 import GUI_Detection
 
 app = QApplication(sys.argv)
@@ -11,13 +11,9 @@ widget.setWindowFlags(widget.windowFlags() |
         QtCore.Qt.WindowMinimizeButtonHint |
         QtCore.Qt.WindowMaximizeButtonHint|
         QtCore.Qt.WindowSystemMenuHint)
+
 widget.show()
 sys.exit(app.exec_())
 
 
-#def main():
-#    # start the app
-#   print("[INFO] starting...")
-#    app = GUI.GUI()
-#    app.mainloop()
-#main()
+

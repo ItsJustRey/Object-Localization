@@ -1,18 +1,18 @@
-import argparse
-
 import cv2
 import imutils
 import numpy as np
 import random
 
-def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_red, detect_green, detect_blue, detect_yellow):
 
+def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_red, detect_green, detect_blue,
+              detect_yellow, global_inches):
+    print("Detection")
     isDetected = {"red": False, "green": False, "blue": False, "yellow": False}
 
-    _red_xyz_pts =      {'x': None, 'y': None, 'z': None, 'pts': red_pts}
-    _green_xyz_pts =    {'x': None, 'y': None, 'z': None, 'pts': green_pts}
-    _blue_xyz_pts =     {'x': None, 'y': None, 'z': None, 'pts': blue_pts}
-    _yellow_xyz_pts =   {'x': None, 'y': None, 'z': None, 'pts': yellow_pts}
+    _red_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': red_pts}
+    _green_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': green_pts}
+    _blue_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': blue_pts}
+    _yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': yellow_pts}
 
     KNOWN_DISTANCE = 24.0
     KNOWN_WIDTH = 2.65
@@ -26,7 +26,7 @@ def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_r
 
     # define the lower and upper boundaries of multiple colors ball in the HSV color space, then initialize the
     # list of tracked points
-    lower= {'red': (0, 100, 100), 'green': (40, 70, 70), 'blue': (97, 100, 117), 'yellow': (23, 59, 119)}
+    lower = {'red': (0, 100, 100), 'green': (40, 70, 70), 'blue': (97, 100, 117), 'yellow': (23, 59, 119)}
     upper = {'red': (10, 255, 255), 'green': (80, 200, 200), 'blue': (117, 255, 255), 'yellow': (54, 255, 255)}
 
     # define standard colors for circle around the object
@@ -54,17 +54,16 @@ def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_r
             if _counter >= 10 and i == 1 and _xyz_pts['pts'][PREV_POINT] is not None:
                 _xyz_pts['x'] = _xyz_pts['pts'][i][0]
                 _xyz_pts['y'] = _xyz_pts['pts'][i][1]
-                _xyz_pts['z'] = random.randint(0,10)
+                _xyz_pts['z'] = random.randint(0, 10)
 
         return _xyz_pts
-
 
     for key, value in upper.items():
 
         if (key == "red" and detect_red == False):
             isDetected['red'] = False
             continue
-        if(key == "green" and detect_green == False):
+        if (key == "green" and detect_green == False):
             isDetected['green'] = False
             continue
         if (key == "blue" and detect_blue == False):
@@ -85,7 +84,7 @@ def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_r
 
         # find contours in the mask
         contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
-                                cv2.CHAIN_APPROX_SIMPLE)[-2]
+                                    cv2.CHAIN_APPROX_SIMPLE)[-2]
 
         center = None
 
@@ -102,15 +101,16 @@ def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_r
             # Get distance for Z-axis using reference image (In inches)
             marker = cv2.minAreaRect(c)
             inches = distance_to_camera(KNOWN_WIDTH, focalLength, marker[1][0])
+            global_inches = inches
 
             # only proceed if the radius meets a minimum size
             if radius > BALL_RADIUS:
                 # draw the circle and centroid on the frame
                 # cv2.circle(thisFrame, (int(x), int(y)), int(radius),(0, 255, 255), 2)
-                #cv2.circle(_frame, (int(x), int(y)), int(radius), colors[key], 2)
+                # cv2.circle(_frame, (int(x), int(y)), int(radius), colors[key], 2)
                 cv2.circle(_frame, center, BALL_RADIUS, colors[key], -1)
 
-                if(key == "red"):
+                if (key == "red"):
                     isDetected['red'] = True
                     _red_xyz_pts['pts'].appendleft(center)
 
@@ -126,21 +126,23 @@ def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_r
                     isDetected['yellow'] = True
                     _yellow_xyz_pts['pts'].appendleft(center)
 
+            if (key == "red"):
+                _red_xyz_pts = calculate_x_y(_red_xyz_pts)
+            elif (key == "green"):
+                _green_xyz_pts = calculate_x_y(_green_xyz_pts)
+            elif (key == "blue"):
+                _blue_xyz_pts = calculate_x_y(_blue_xyz_pts)
+            elif (key == "yellow"):
+                _yellow_xyz_pts = calculate_x_y(_yellow_xyz_pts)
 
-            if (key == "red"):      _red_xyz_pts = calculate_x_y(_red_xyz_pts)
-            elif (key == "green"):  _green_xyz_pts = calculate_x_y(_green_xyz_pts)
-            elif (key == "blue"):   _blue_xyz_pts = calculate_x_y(_blue_xyz_pts)
-            elif (key == "yellow"): _yellow_xyz_pts = calculate_x_y(_yellow_xyz_pts)
-
-            #contours = contours.h_next()
+            # contours = contours.h_next()
 
     # draw the connecting lines
-    #thickness = int(np.sqrt(args["buffer"] / float(i + 1)))
-    #cv2.line(thisFrame, pts[i - 1], pts[i], (0, 0, 255), thickness)
+    # thickness = int(np.sqrt(args["buffer"] / float(i + 1)))
+    # cv2.line(thisFrame, pts[i - 1], pts[i], (0, 0, 255), thickness)
 
     # return the frame and increment counter
     _counter += 1
-
 
     print("COUNTER: " + str(_counter) +
           "\n\t\tx_red:\t\t" + str(_red_xyz_pts['x']) +
@@ -154,7 +156,8 @@ def Detection(frame, counter, red_pts, green_pts, blue_pts, yellow_pts, detect_r
           "\t\tz_blue:\t\t" + str(_blue_xyz_pts['z']) +
           "\n\t\tx_yellow:\t" + str(_yellow_xyz_pts['x']) +
           "\t\ty_yellow:\t" + str(_yellow_xyz_pts['y']) +
-          "\t\tz_yellow:\t" + str(_yellow_xyz_pts['z']) )
-          # )
-    #print("counter: " + str(counter) + "\tpts: " + str(len(pts)) + " \t\t\tx: " + str(x) + "\t\t\ty: " + str(y) + "\t\t\tz: " + str(z))
-    return _frame, _counter, _red_xyz_pts, _green_xyz_pts, _blue_xyz_pts, _yellow_xyz_pts, isDetected
+          "\t\tz_yellow:\t" + str(_yellow_xyz_pts['z']))
+    # )
+    # print("counter: " + str(counter) + "\tpts: " + str(len(pts)) + " \t\t\tx: " + str(x) + "\t\t\ty: " + str(y) + "\t\t\tz: " + str(z))
+    return _frame, _counter, _red_xyz_pts, _green_xyz_pts, _blue_xyz_pts, _yellow_xyz_pts, isDetected, global_inches
+
