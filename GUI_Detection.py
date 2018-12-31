@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from Video import Video
 from OL_3D_Plot import OL_3D_Plot
 import Localization
+
 MIN_NUM_POINTS = 10
 
 
@@ -58,10 +59,10 @@ class GUI_Detection(QDialog):
         self.detect_green = False
         self.detect_blue = False
         self.detect_yellow = False
-        self.checkBox_red.setChecked( self.detect_red)
-        self.checkBox_green.setChecked( self.detect_green)
-        self.checkBox_blue.setChecked( self.detect_blue)
-        self.checkBox_yellow.setChecked( self.detect_yellow)
+        self.checkBox_red.setChecked(self.detect_red)
+        self.checkBox_green.setChecked(self.detect_green)
+        self.checkBox_blue.setChecked(self.detect_blue)
+        self.checkBox_yellow.setChecked(self.detect_yellow)
 
         # 3D PLOT FOR LOCALIZATION DATA
         self.plot_global = OL_3D_Plot(self)
@@ -83,12 +84,12 @@ class GUI_Detection(QDialog):
         self.comboBox_video0.currentTextChanged.connect(self.comboBox_video0_changed)
         self.comboBox_video0.setCurrentIndex(comboBoxOptions.index("0"))
 
-        self.comboBox_video1.currentTextChanged.connect(self.comboBox_video1_changed)
         self.comboBox_video1.addItems(comboBoxOptions)
+        self.comboBox_video1.currentTextChanged.connect(self.comboBox_video1_changed)
         self.comboBox_video1.setCurrentIndex(comboBoxOptions.index("0"))
 
-        self.comboBox_video2.currentTextChanged.connect(self.comboBox_video2_changed)
         self.comboBox_video2.addItems(comboBoxOptions)
+        self.comboBox_video2.currentTextChanged.connect(self.comboBox_video2_changed)
         self.comboBox_video2.setCurrentIndex(comboBoxOptions.index("0"))
 
     def __del__(self):
@@ -100,35 +101,67 @@ class GUI_Detection(QDialog):
         self.stop_video()
 
     def red_state_changed(self):
-        if self.checkBox_red.isChecked():
-            self.detect_red = True
-        else:
-            self.detect_red = False
+        try:
+            if self.checkBox_red.isChecked():
+                self.detect_red = True
+            else:
+                self.detect_red = False
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
     def green_state_changed(self):
-        if self.checkBox_green.isChecked():
-            self.detect_green = True
-        else:
-            self.detect_green = False
+        try:
+            if self.checkBox_green.isChecked():
+                self.detect_green = True
+            else:
+                self.detect_green = False
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
     def blue_state_changed(self):
-        if self.checkBox_blue.isChecked():
-            self.detect_blue = True
-        else:
-            self.detect_blue = False
+        try:
+            if self.checkBox_blue.isChecked():
+                self.detect_blue = True
+            else:
+                self.detect_blue = False
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
     def yellow_state_changed(self):
-        if self.checkBox_yellow.isChecked():
-            self.detect_yellow = True
-        else:
-            self.detect_yellow = False
+        try:
+            if self.checkBox_yellow.isChecked():
+                self.detect_yellow = True
+            else:
+                self.detect_yellow = False
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
     def comboBox_video0_changed(self):
         try:
             self.VIDEO_SOURCE_0 = self.comboBox_video0.currentText()
-            if(self.VIDEO_SOURCE_0 == '0' or self.VIDEO_SOURCE_0 == '1' or self.VIDEO_SOURCE_0 == '2' or self.VIDEO_SOURCE_0 == '3'):
+            if (self.VIDEO_SOURCE_0 == '0' or self.VIDEO_SOURCE_0 == '1' or self.VIDEO_SOURCE_0 == '2' or self.VIDEO_SOURCE_0 == '3'):
                 self.VIDEO_SOURCE_0 = int(self.VIDEO_SOURCE_0)
+            return
         except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
     def comboBox_video1_changed(self):
@@ -136,16 +169,23 @@ class GUI_Detection(QDialog):
             self.VIDEO_SOURCE_1 = self.comboBox_video1.currentText()
             if (self.VIDEO_SOURCE_1 == '0' or self.VIDEO_SOURCE_1 == '1' or self.VIDEO_SOURCE_1 == '2' or self.VIDEO_SOURCE_1 == '3'):
                 self.VIDEO_SOURCE_1 = int(self.VIDEO_SOURCE_1)
-
+            return
         except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
     def comboBox_video2_changed(self):
         try:
             self.VIDEO_SOURCE_2 = self.comboBox_video2.currentText()
-            if (self.VIDEO_SOURCE_2 == '0' or self.VIDEO_SOURCE_2 == '1' or self.VIDEO_SOURCE_2 == '2' or self.VIDEO_SOURCE_2 == '3'):
+            if(self.VIDEO_SOURCE_2 == '0' or self.VIDEO_SOURCE_2 == '1' or self.VIDEO_SOURCE_2 == '2' or self.VIDEO_SOURCE_2 == '3'):
                 self.VIDEO_SOURCE_2 = int(self.VIDEO_SOURCE_2)
+            return
         except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
     # START VIDEO 0, VIDEO 1, and VIDEO 2 FRAMES AND DATA
@@ -180,11 +220,13 @@ class GUI_Detection(QDialog):
             self.timer2.setTimerType(QtCore.Qt.PreciseTimer)
             self.timer2.timeout.connect(lambda: self.update_frame(self.v2))
             self.timer2.start()
+            return
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
     ####################################################################################################
     #                                      update_frame(Video)
@@ -212,15 +254,29 @@ class GUI_Detection(QDialog):
             (video.frame, video.counter,
              video.red_xyz_pts, video.green_xyz_pts, video.blue_xyz_pts, video.yellow_xyz_pts,
              video.isDetected, self.global_inches) = \
-            Detection.Detection \
-            (video.frame, video.counter,
-             video.red_xyz_pts['pts'], video.green_xyz_pts['pts'],
-             video.blue_xyz_pts['pts'], video.yellow_xyz_pts['pts'],
-             self.detect_red, self.detect_green, self.detect_blue, self.detect_yellow, self.global_inches)
+                Detection.Detection(video.frame, video.counter,
+                                    video.red_xyz_pts['pts'], video.green_xyz_pts['pts'],
+                                    video.blue_xyz_pts['pts'], video.yellow_xyz_pts['pts'],
+                                    self.detect_red, self.detect_green, self.detect_blue, self.detect_yellow,
+                                    self.global_inches)
             # PASS in: current frame (opencv), current counter (int), each color points (deque),
             # detect_color (boolean from user selected checkbox), and global_inches (int)
-            print("update_frame ... v" + video.id + " after detection")
 
+            # UPDATE DATA AND PLOTS, THEN DISPLAY FRAME
+            self.update_data(video)
+            self.update_plot(video)
+            self.display_frame(video.frame, int(video.id), 1)
+            return
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+
+    # UPDATE DATA FOR SPECIFIC VIDEO
+    def update_data(self, video):
+        try:
             # CHECK IF A COLOR WAS DETECTED
             if (True in video.isDetected.values()):
 
@@ -266,275 +322,25 @@ class GUI_Detection(QDialog):
                 # CLEAR ALL COLORS FOR JUST THIS VIDEO
                 self.clear(None, "all", False)
 
-            # UPDATE PLOTS
-            self.update_plot(video)
-            print("update_frame ... v" + video.id + "finished updating plot")
-            # DISPLAY FRAMES
-            self.display_frame(video.frame, int(video.id), 1)
-            print("update_frame ... v" + video.id + "finished displaying frame")
-
         except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
-    # ####################################################################################################
-    # #                                       VIDEO 0
-    # ####################################################################################################
-    # def update_frame0(self):
-    #     try:
-    #         if (not self.v0.vidCap.isOpened() or not self.v1.vidCap.isOpened() or not self.v2.vidCap.isOpened()):
-    #             self.v0.frame = None
-    #             self.v1.frame = None
-    #             self.v2.frame = None
-    #             self.stop_video()
-    #             return
-    #
-    #
-    #         self.global_points=0
-    #         ret, self.v0.frame = self.v0.vidCap.read()
-    #
-    #
-    #         if ret == False:
-    #             self.stop_video()
-    #             return
-    #
-    #
-    #         (self.v0_frame, self.v0_counter, self.v0_red_xyz_pts, self.v0_green_xyz_pts, self.v0_blue_xyz_pts,
-    #          self.v0_yellow_xyz_pts, self.v0_isDetected, self.global_inches) = Detection.Detection \
-    #             (self.v0_frame, self.v0_counter,
-    #              self.v0_red_xyz_pts['pts'], self.v0_green_xyz_pts['pts'], self.v0_blue_xyz_pts['pts'], self.v0_yellow_xyz_pts['pts'],
-    #              self.detect_red, self.detect_green, self.detect_blue, self.detect_yellow, self.global_inches)
-    #
-    #         if (True in self.v0_isDetected.values()):
-    #
-    #             if (self.v0_isDetected['red']):
-    #                 if (len(self.v0_red_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v0_red['x'].append(self.v0_red_xyz_pts['x'])
-    #                     self.v0_red['y'].append(self.v0_red_xyz_pts['y'])
-    #                     self.v0_red['z'].append(self.v0_red_xyz_pts['z'])
-    #             else:
-    #                 self.clear("red", True, False, False)
-    #
-    #             if (self.v0_isDetected['green']):
-    #                 if (len(self.v0_green_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v0_green['x'].append(self.v0_green_xyz_pts['x'])
-    #                     self.v0_green['y'].append(self.v0_green_xyz_pts['y'])
-    #                     self.v0_green['z'].append(self.v0_green_xyz_pts['z'])
-    #             else:
-    #                 self.clear("green", True, False, False)
-    #
-    #             if (self.v0_isDetected['blue']):
-    #                 if (len(self.v0_blue_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v0_blue['x'].append(self.v0_blue_xyz_pts['x'])
-    #                     self.v0_blue['y'].append(self.v0_blue_xyz_pts['y'])
-    #                     self.v0_blue['z'].append(self.v0_blue_xyz_pts['z'])
-    #             else:
-    #                 self.clear("blue", True, False, False)
-    #
-    #             if (self.v0_isDetected['yellow']):
-    #                 if (len(self.v0_yellow_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v0_yellow['x'].append(self.v0_yellow_xyz_pts['x'])
-    #                     self.v0_yellow['y'].append(self.v0_yellow_xyz_pts['y'])
-    #                     self.v0_yellow['z'].append(self.v0_yellow_xyz_pts['z'])
-    #             else:
-    #                 self.clear("yellow", True, False, False)
-    #
-    #         else:
-    #             self.clear("all", True, False, False)
-    #
-    #         #V0 PLOT MULTIPLE TRACES
-    #         #self.plot_v0.trace_red.setData(pos=np.vstack([self.v0_red['x'], self.v0_red['y'], self.v0_red['z']]).transpose())
-    #         #self.plot_v0.trace_green.setData(pos=np.vstack([self.v0_green['x'], self.v0_green['y'], self.v0_green['z']]).transpose())
-    #         #self.plot_v0.trace_blue.setData(pos=np.vstack([self.v0_blue['x'], self.v0_blue['y'], self.v0_blue['z']]).transpose())
-    #         #self.plot_v0.trace_yellow.setData(pos=np.vstack([self.v0_yellow['x'], self.v0_yellow['y'], self.v0_yellow['z']]).transpose())
-    #
-    #     except Exception as e:
-    #         print(e)
-    #
-    # ####################################################################################################
-    # #                                       VIDEO 1
-    # ####################################################################################################
-    # def update_frame1(self):
-    #
-    #     try:
-    #         if (not self.v0.vidCap.isOpened() or not self.v1.vidCap.isOpened() or not self.v2.vidCap.isOpened()):
-    #             self.v0_frame = None
-    #             self.v1_frame = None
-    #             self.v2_frame = None
-    #             self.stop_video()
-    #             return
-    #
-    #         self.global_points=0
-    #         ret, self.v1_frame = self.v1.vidCap.read()
-    #         if ret == False:
-    #             self.stop_video()
-    #             return
-    #
-    #         (self.v1_frame, self.v1_counter, self.v1_red_xyz_pts, self.v1_green_xyz_pts, self.v1_blue_xyz_pts,
-    #          self.v1_yellow_xyz_pts, self.v1_isDetected, self.global_inches) = Detection.Detection \
-    #             (self.v1_frame, self.v1_counter,
-    #              self.v1_red_xyz_pts['pts'], self.v1_green_xyz_pts['pts'], self.v1_blue_xyz_pts['pts'], self.v1_yellow_xyz_pts['pts'],
-    #              self.detect_red, self.detect_green, self.detect_blue, self.detect_yellow, self.global_inches)
-    #
-    #         if (True in self.v1_isDetected.values()):
-    #
-    #             if (self.v1_isDetected['red']):
-    #                 if (len(self.v1_red_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v1_red['x'].append(self.v1_red_xyz_pts['x'])
-    #                     self.v1_red['y'].append(self.v1_red_xyz_pts['y'])
-    #                     self.v1_red['z'].append(self.v1_red_xyz_pts['z'])
-    #             else:
-    #                 self.clear("red", False, True, False)
-    #
-    #             if (self.v1_isDetected['green']):
-    #                 if (len(self.v1_green_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v1_green['x'].append(self.v1_green_xyz_pts['x'])
-    #                     self.v1_green['y'].append(self.v1_green_xyz_pts['y'])
-    #                     self.v1_green['z'].append(self.v1_green_xyz_pts['z'])
-    #             else:
-    #                 self.clear("green", False, True, False)
-    #
-    #             if (self.v1_isDetected['blue']):
-    #                 if (len(self.v1_blue_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v1_blue['x'].append(self.v1_blue_xyz_pts['x'])
-    #                     self.v1_blue['y'].append(self.v1_blue_xyz_pts['y'])
-    #                     self.v1_blue['z'].append(self.v1_blue_xyz_pts['z'])
-    #             else:
-    #                 self.clear("blue", False, True, False)
-    #
-    #             if (self.v1_isDetected['yellow']):
-    #                 if (len(self.v1_yellow_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v1_yellow['x'].append(self.v1_yellow_xyz_pts['x'])
-    #                     self.v1_yellow['y'].append(self.v1_yellow_xyz_pts['y'])
-    #                     self.v1_yellow['z'].append(self.v1_yellow_xyz_pts['z'])
-    #             else:
-    #                 self.clear("yellow", False, True, False)
-    #
-    #         else:
-    #             self.clear("all", False, True, False)
-    #
-    #         # V1 PLOT MULTIPLE TRACES
-    #         #self.plot_v1.trace_red.setData(pos=np.vstack([self.v1_red['x'], self.v1_red['y'], self.v1_red['z']]).transpose())
-    #         #self.plot_v1.trace_green.setData(pos=np.vstack([self.v1_green['x'], self.v1_green['y'], self.v1_green['z']]).transpose())
-    #         #self.plot_v1.trace_blue.setData(pos=np.vstack([self.v1_blue['y'], self.v1_blue['x'], self.v1_blue['z']]).transpose())
-    #         #self.plot_v1.trace_yellow.setData(pos=np.vstack([self.v1_yellow['x'], self.v1_yellow['y'], self.v1_yellow['z']]).transpose())
-    #         #self.display_frame(self.v1_frame, 1, 1)
-    #
-    #     except Exception as e:
-    #         print(e)
-    #
-    # ####################################################################################################
-    # #                                       VIDEO 2
-    # ####################################################################################################
-    # def update_frame2(self):
-    #     try:
-    #         if (not self.v0.vidCap.isOpened() or not self.v1.vidCap.isOpened() or not self.v2.vidCap.isOpened()):
-    #             self.v0_frame = None
-    #             self.v1_frame = None
-    #             self.v2_frame = None
-    #             self.stop_video()
-    #             return
-    #
-    #         self.global_inches=0
-    #         ret, self.v2_frame = self.v2.vidCap.read()
-    #         if ret == False:
-    #             self.stop_video()
-    #             return
-    #
-    #         (self.v2_frame, self.v2_counter, self.v2_red_xyz_pts, self.v2_green_xyz_pts, self.v2_blue_xyz_pts,
-    #          self.v2_yellow_xyz_pts, self.v2_isDetected, self.global_inches) = Detection.Detection \
-    #             (self.v2_frame, self.v2_counter,
-    #              self.v2_red_xyz_pts['pts'], self.v2_green_xyz_pts['pts'], self.v2_blue_xyz_pts['pts'], self.v2_yellow_xyz_pts['pts'],
-    #              self.detect_red, self.detect_green, self.detect_blue, self.detect_yellow, self.global_inches)
-    #
-    #         if (True in self.v2_isDetected.values()):
-    #
-    #             if (self.v2_isDetected['red']):
-    #                 if (len(self.v2_red_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v2_red['x'].append(self.v2_red_xyz_pts['x'])
-    #                     self.v2_red['y'].append(self.v2_red_xyz_pts['y'])
-    #                     self.v2_red['z'].append(self.v2_red_xyz_pts['z'])
-    #             else:
-    #                 self.clear("red", False, False, True)
-    #
-    #             if (self.v2_isDetected['green']):
-    #                 if (len(self.v2_green_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v2_green['x'].append(self.v2_green_xyz_pts['x'])
-    #                     self.v2_green['y'].append(self.v2_green_xyz_pts['y'])
-    #                     self.v2_green['z'].append(self.v2_green_xyz_pts['z'])
-    #             else:
-    #                 self.clear("green", False, False, True)
-    #
-    #             if (self.v2_isDetected['blue']):
-    #                 if (len(self.v2_blue_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v2_blue['x'].append(self.v2_blue_xyz_pts['x'])
-    #                     self.v2_blue['y'].append(self.v2_blue_xyz_pts['y'])
-    #                     self.v2_blue['z'].append(self.v2_blue_xyz_pts['z'])
-    #             else:
-    #                 self.clear("blue", False, False, True)
-    #
-    #             if (self.v2_isDetected['yellow']):
-    #                 if (len(self.v2_yellow_xyz_pts['pts']) > MIN_NUM_POINTS):
-    #                     self.v2_yellow['x'].append(self.v2_yellow_xyz_pts['x'])
-    #                     self.v2_yellow['y'].append(self.v2_yellow_xyz_pts['y'])
-    #                     self.v2_yellow['z'].append(self.v2_yellow_xyz_pts['z'])
-    #             else:
-    #                 self.clear("yellow", False, False, True)
-    #
-    #         else:
-    #             self.clear("all", False, False, True)
-    #
-    #         # V2 PLOT MULTIPLE TRACES
-    #         self.plot_v2.trace_red.setData(pos=np.vstack([self.v2_red['x'], self.v2_red['y'], self.v2_red['z']]).transpose())
-    #         self.plot_v2.trace_green.setData(pos=np.vstack([self.v2_green['x'], self.v2_green['y'], self.v2_green['z']]).transpose())
-    #         self.plot_v2.trace_blue.setData(pos=np.vstack([self.v2_blue['x'], self.v2_blue['y'], self.v2_blue['z']]).transpose())
-    #         self.plot_v2.trace_yellow.setData(pos=np.vstack([self.v2_yellow['x'], self.v2_yellow['y'], self.v2_yellow['z']]).transpose())
-    #
-    #
-    #         (self.v0_frame, self.v1_frame, self.v2_frame, self.global_red_xyz_pts, self.global_green_xyz_pts, self.global_blue_xyz_pts, self.global_yellow_xyz_pts) = \
-    #             Localization.Localization(self.v0_frame, self.v1_frame, self.v2_frame,
-    #                                       self.v0_blue, self.v0_yellow,self.v0_red,self.v0_green,  self.v0_isDetected,
-    #                                       self.v1_blue, self.v1_yellow, self.v1_red, self.v1_green, self.v1_isDetected,
-    #                                       self.v2_blue,self.v2_yellow,self.v2_red,self.v2_green,  self.v2_isDetected, self.global_inches)
-    #
-    #         if(self.global_red_xyz_pts['isCalculated'] is True):
-    #             self.global_red['x'].append(self.global_red_xyz_pts['x'])
-    #             self.global_red['y'].append(self.global_red_xyz_pts['y'])
-    #             self.global_red['z'].append(self.global_red_xyz_pts['z'])
-    #
-    #         if(self.global_green_xyz_pts['isCalculated'] is True):
-    #             self.global_green['x'].append(self.global_green_xyz_pts['x'])
-    #             self.global_green['y'].append(self.global_green_xyz_pts['y'])
-    #             self.global_green['z'].append(self.global_green_xyz_pts['z'])
-    #
-    #         if(self.global_blue_xyz_pts['isCalculated'] is True):
-    #             self.global_blue['x'].append(self.global_blue_xyz_pts['x'])
-    #             self.global_blue['y'].append(self.global_blue_xyz_pts['y'])
-    #             self.global_blue['z'].append(self.global_blue_xyz_pts['z'])
-    #
-    #         if(self.global_yellow_xyz_pts['isCalculated'] is True):
-    #             self.global_yellow['x'].append(self.global_yellow_xyz_pts['x'])
-    #             self.global_yellow['y'].append(self.global_yellow_xyz_pts['y'])
-    #             self.global_yellow['z'].append(self.global_yellow_xyz_pts['z'])
-    #
-    #
-    #         self.plot_v0.trace_red.setData(pos=np.vstack([self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
-    #         self.plot_v0.trace_green.setData(pos=np.vstack([self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
-    #         self.plot_v0.trace_blue.setData(pos=np.vstack([self.global_blue['x'], self.global_blue['z'], self.global_blue['y']]).transpose())
-    #         self.plot_v0.trace_yellow.setData(pos=np.vstack([self.global_yellow['x'], self.global_yellow['y'], self.global_yellow['z']]).transpose())
-    #
-    #
-    #         self.plot_v1.trace_red.setData(pos=np.vstack([self.global_red['y'], self.global_red['x'], self.global_red['z']]).transpose())
-    #         self.plot_v1.trace_green.setData(pos=np.vstack([self.global_green['y'], self.global_green['x'], self.global_green['z']]).transpose())
-    #         self.plot_v1.trace_blue.setData(pos=np.vstack([self.global_blue['y'], self.global_blue['x'], self.global_blue['z']]).transpose())
-    #         self.plot_v1.trace_yellow.setData(pos=np.vstack([self.global_yellow['y'], self.global_yellow['x'], self.global_yellow['z']]).transpose())
-    #
-    #         self.display_frame(self.v0_frame, 0, 1)
-    #         self.display_frame(self.v1_frame, 1, 1)
-    #         self.display_frame(self.v2_frame, 2, 1)
-    #
-    #     except Exception as e:
-    #         print(e)
-
+    # UPDATE PLOT FOR SPECIFIC VIDEO
+    def update_plot(self, video):
+        try:
+            video.plot.trace_red.setData(pos=np.vstack([video.red['x'], video.red['y'], video.red['z']]).transpose())
+            video.plot.trace_green.setData(pos=np.vstack([video.green['x'], video.green['y'], video.green['z']]).transpose())
+            video.plot.trace_blue.setData(pos=np.vstack([video.blue['x'], video.blue['y'], video.blue['z']]).transpose())
+            video.plot.trace_yellow.setData(pos=np.vstack([video.yellow['x'], video.yellow['y'], video.yellow['z']]).transpose())
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
     def display_frame(self, _frame, source, window=1):
         try:
@@ -559,19 +365,50 @@ class GUI_Detection(QDialog):
                 elif source == 2:
                     self.label_video2.setPixmap(QPixmap.fromImage(outputImage))
                     self.label_video2.setScaledContents(True)
-
+            return
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
-    def update_plot(self, video):
+    def localize(self):
+        try:
+            (self.v0_frame, self.v1_frame, self.v2_frame, self.global_red_xyz_pts, self.global_green_xyz_pts,
+             self.global_blue_xyz_pts, self.global_yellow_xyz_pts) = \
+                Localization.Localization(self.v0_frame, self.v1_frame, self.v2_frame,
+                                          self.v0_blue, self.v0_yellow, self.v0_red, self.v0_green, self.v0_isDetected,
+                                          self.v1_blue, self.v1_yellow, self.v1_red, self.v1_green, self.v1_isDetected,
+                                          self.v2_blue, self.v2_yellow, self.v2_red, self.v2_green, self.v2_isDetected,
+                                          self.global_inches)
 
-        video.plot.trace_red.setData(pos=np.vstack([video.red['x'], video.red['y'], video.red['z']]).transpose())
-        video.plot.trace_green.setData(pos=np.vstack([video.green['x'], video.green['y'], video.green['z']]).transpose())
-        video.plot.trace_blue.setData(pos=np.vstack([video.blue['x'], video.blue['y'], video.blue['z']]).transpose())
-        video.plot.trace_yellow.setData(pos=np.vstack([video.yellow['x'], video.yellow['y'], video.yellow['z']]).transpose())
+            if (self.global_red_xyz_pts['isCalculated'] is True):
+                self.global_red['x'].append(self.global_red_xyz_pts['x'])
+                self.global_red['y'].append(self.global_red_xyz_pts['y'])
+                self.global_red['z'].append(self.global_red_xyz_pts['z'])
+
+            if (self.global_green_xyz_pts['isCalculated'] is True):
+                self.global_green['x'].append(self.global_green_xyz_pts['x'])
+                self.global_green['y'].append(self.global_green_xyz_pts['y'])
+                self.global_green['z'].append(self.global_green_xyz_pts['z'])
+
+            if (self.global_blue_xyz_pts['isCalculated'] is True):
+                self.global_blue['x'].append(self.global_blue_xyz_pts['x'])
+                self.global_blue['y'].append(self.global_blue_xyz_pts['y'])
+                self.global_blue['z'].append(self.global_blue_xyz_pts['z'])
+
+            if (self.global_yellow_xyz_pts['isCalculated'] is True):
+                self.global_yellow['x'].append(self.global_yellow_xyz_pts['x'])
+                self.global_yellow['y'].append(self.global_yellow_xyz_pts['y'])
+                self.global_yellow['z'].append(self.global_yellow_xyz_pts['z'])
+            return
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
     def stop_video(self):
         try:
@@ -597,22 +434,25 @@ class GUI_Detection(QDialog):
             self.comboBox_video2.show()
 
             self.clear(None, "all", True)
+            return
+
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
 
     # USED TO CLEAR VIDEO 0, VIDEO 1, VIDEO 2 DATA STRUCTURES
     def clear(self, video, color, mode):
 
         print(" Clearing...")
         try:
-            if(color == "all"):
+            if (color == "all"):
                 print(" Clearing All ...")
-                self.global_red =    {'x': [], 'y': [], 'z': []}
-                self.global_green =  {'x': [], 'y': [], 'z': []}
-                self.global_blue =   {'x': [], 'y': [], 'z': []}
+                self.global_red = {'x': [], 'y': [], 'z': []}
+                self.global_green = {'x': [], 'y': [], 'z': []}
+                self.global_blue = {'x': [], 'y': [], 'z': []}
                 self.global_yellow = {'x': [], 'y': [], 'z': []}
 
                 self.global_red_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
@@ -624,7 +464,7 @@ class GUI_Detection(QDialog):
                 self.global_yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'length0': None, 'length1': None,
                                               'length2': None, 'isCalculated': False}
                 # CLEAR ALL VIDEOS
-                if(mode):
+                if (mode):
                     self.v0.clear(color)
                     self.v1.clear(color)
                     self.v2.clear(color)
@@ -634,11 +474,10 @@ class GUI_Detection(QDialog):
             else:
                 # CLEAR SPECIFIC COLOR
                 video.clear(color)
-
             return
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
-
+            print(e)
