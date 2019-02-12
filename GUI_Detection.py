@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from Video import Video
 from OL_3D_Plot import OL_3D_Plot
 import Localization
+import threading
 
 MIN_NUM_POINTS = 10
 
@@ -91,6 +92,8 @@ class GUI_Detection(QDialog):
         self.comboBox_video2.addItems(comboBoxOptions)
         self.comboBox_video2.currentTextChanged.connect(self.comboBox_video2_changed)
         self.comboBox_video2.setCurrentIndex(comboBoxOptions.index("0"))
+
+        self.thread = threading.Lock()
 
     def __del__(self):
         print("self destruct")
@@ -220,6 +223,11 @@ class GUI_Detection(QDialog):
             self.timer2.setTimerType(QtCore.Qt.PreciseTimer)
             self.timer2.timeout.connect(lambda: self.update_frame(self.v2))
             self.timer2.start()
+
+            self.timerLocalize = QTimer(self)
+            self.timerLocalize.setTimerType(QtCore.Qt.PreciseTimer)
+            self.timerLocalize.timeout.connect(self.localize)
+            self.timerLocalize.start()
             return
 
         except Exception as e:
@@ -320,7 +328,7 @@ class GUI_Detection(QDialog):
 
             else:
                 # CLEAR ALL COLORS FOR JUST THIS VIDEO
-                self.clear(None, "all", False)
+                self.clear(video, "all", False)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -375,33 +383,41 @@ class GUI_Detection(QDialog):
 
     def localize(self):
         try:
-            (self.v0_frame, self.v1_frame, self.v2_frame, self.global_red_xyz_pts, self.global_green_xyz_pts,
-             self.global_blue_xyz_pts, self.global_yellow_xyz_pts) = \
-                Localization.Localization(self.v0_frame, self.v1_frame, self.v2_frame,
-                                          self.v0_blue, self.v0_yellow, self.v0_red, self.v0_green, self.v0_isDetected,
-                                          self.v1_blue, self.v1_yellow, self.v1_red, self.v1_green, self.v1_isDetected,
-                                          self.v2_blue, self.v2_yellow, self.v2_red, self.v2_green, self.v2_isDetected,
-                                          self.global_inches)
+            print("Localizing...")
+            #self.thread.acquire()    # lock thread until we fully complete localization computation
+            (self.global_red_xyz_pts, self.global_green_xyz_pts,self.global_blue_xyz_pts, self.global_yellow_xyz_pts) = \
+                Localization.Localization(self.v0, self.v1, self.v2, self.global_inches)
 
-            if (self.global_red_xyz_pts['isCalculated'] is True):
+            print(self.global_yellow_xyz_pts)
+            #if(self.global_red_xyz_pts is not None):
+            if (self.global_red_xyz_pts['isCalculated']):
                 self.global_red['x'].append(self.global_red_xyz_pts['x'])
                 self.global_red['y'].append(self.global_red_xyz_pts['y'])
                 self.global_red['z'].append(self.global_red_xyz_pts['z'])
 
-            if (self.global_green_xyz_pts['isCalculated'] is True):
+            if (self.global_green_xyz_pts['isCalculated']):
                 self.global_green['x'].append(self.global_green_xyz_pts['x'])
                 self.global_green['y'].append(self.global_green_xyz_pts['y'])
                 self.global_green['z'].append(self.global_green_xyz_pts['z'])
 
-            if (self.global_blue_xyz_pts['isCalculated'] is True):
+            if (self.global_blue_xyz_pts['isCalculated']):
                 self.global_blue['x'].append(self.global_blue_xyz_pts['x'])
                 self.global_blue['y'].append(self.global_blue_xyz_pts['y'])
                 self.global_blue['z'].append(self.global_blue_xyz_pts['z'])
 
-            if (self.global_yellow_xyz_pts['isCalculated'] is True):
+            if (self.global_yellow_xyz_pts['isCalculated']):
+                print("adding global yellow point")
                 self.global_yellow['x'].append(self.global_yellow_xyz_pts['x'])
                 self.global_yellow['y'].append(self.global_yellow_xyz_pts['y'])
                 self.global_yellow['z'].append(self.global_yellow_xyz_pts['z'])
+
+            self.plot_global.trace_red.setData(pos=np.vstack([self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
+            self.plot_global.trace_green.setData(pos=np.vstack([self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
+            self.plot_global.trace_blue.setData(pos=np.vstack([self.global_blue['x'],  self.global_blue['y'],  self.global_blue['z']]).transpose())
+            self.plot_global.trace_yellow.setData(pos=np.vstack([self.global_yellow['x'], self.global_yellow['y'], self.global_yellow['z']]).transpose())
+
+
+            #self.thread.release() # release the lock on the thread
             return
 
         except Exception as e:
@@ -443,13 +459,16 @@ class GUI_Detection(QDialog):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
-    # USED TO CLEAR VIDEO 0, VIDEO 1, VIDEO 2 DATA STRUCTURES
     def clear(self, video, color, mode):
+        """Clear given video
+        >>> clear(v0, )
 
+        """
         print(" Clearing...")
         try:
             if (color == "all"):
                 print(" Clearing All ...")
+                self.global_inches = 0
                 self.global_red = {'x': [], 'y': [], 'z': []}
                 self.global_green = {'x': [], 'y': [], 'z': []}
                 self.global_blue = {'x': [], 'y': [], 'z': []}

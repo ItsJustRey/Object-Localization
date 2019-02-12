@@ -41,5 +41,7 @@ class OL_3D_Plot(QtGui.QWidget):
         self.plot.addItem(self.trace_blue)
         self.plot.addItem(self.trace_green)
         self.plot.addItem(self.trace_yellow)
+
+        #self.plot.setBackgroundColor('w')
         layout.addWidget(self.plot)
         self.setLayout(layout)

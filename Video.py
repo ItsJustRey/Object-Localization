@@ -29,6 +29,8 @@ class Video:
             self.yellow_xyz_pts = {'x': None, 'y': None, 'z': None, 'pts': self.newDeque}
 
             self.isDetected = {"red": False, "green": False, "blue": False, "yellow": False}
+            #self.time =
+
             print("Creating v" + self.id + " ... defined data structures")
 
             # 3D PLOTS FOR THIS VIDEO
