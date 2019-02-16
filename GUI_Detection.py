@@ -9,6 +9,7 @@ from collections import deque
 import sys, os
 import numpy as np
 import Detection
+import Database
 import argparse
 import cv2
 import pyqtgraph as pg
@@ -20,7 +21,8 @@ from Video import Video
 from OL_3D_Plot import OL_3D_Plot
 import Localization
 import threading
-
+import datetime
+from datetime import datetime
 MIN_NUM_POINTS = 10
 
 
@@ -95,6 +97,10 @@ class GUI_Detection(QDialog):
 
         self.thread = threading.Lock()
 
+        # CREATE and CONNECT to DATABASE
+        self.db = Database.Database()
+        self.db.connect()
+
     def __del__(self):
         print("self destruct")
         self.stop_video()
@@ -104,6 +110,7 @@ class GUI_Detection(QDialog):
         self.stop_video()
 
     def red_state_changed(self):
+        """ Monitor when Red checkbox is checked/unchecked """
         try:
             if self.checkBox_red.isChecked():
                 self.detect_red = True
@@ -117,6 +124,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def green_state_changed(self):
+        """ Monitor when Green checkbox is checked/unchecked """
         try:
             if self.checkBox_green.isChecked():
                 self.detect_green = True
@@ -130,6 +138,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def blue_state_changed(self):
+        """ Monitor when Blue checkbox is checked/unchecked """
         try:
             if self.checkBox_blue.isChecked():
                 self.detect_blue = True
@@ -143,6 +152,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def yellow_state_changed(self):
+        """ Monitor when Yellow checkbox is checked/unchecked """
         try:
             if self.checkBox_yellow.isChecked():
                 self.detect_yellow = True
@@ -156,6 +166,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def comboBox_video0_changed(self):
+        """ Monitor when video0 source comboBox is changed """
         try:
             self.VIDEO_SOURCE_0 = self.comboBox_video0.currentText()
             if (self.VIDEO_SOURCE_0 == '0' or self.VIDEO_SOURCE_0 == '1' or self.VIDEO_SOURCE_0 == '2' or self.VIDEO_SOURCE_0 == '3'):
@@ -168,6 +179,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def comboBox_video1_changed(self):
+        """ Monitor when video1 source comboBox is changed """
         try:
             self.VIDEO_SOURCE_1 = self.comboBox_video1.currentText()
             if (self.VIDEO_SOURCE_1 == '0' or self.VIDEO_SOURCE_1 == '1' or self.VIDEO_SOURCE_1 == '2' or self.VIDEO_SOURCE_1 == '3'):
@@ -180,6 +192,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def comboBox_video2_changed(self):
+        """ Monitor when video2 source comboBox is changed """
         try:
             self.VIDEO_SOURCE_2 = self.comboBox_video2.currentText()
             if(self.VIDEO_SOURCE_2 == '0' or self.VIDEO_SOURCE_2 == '1' or self.VIDEO_SOURCE_2 == '2' or self.VIDEO_SOURCE_2 == '3'):
@@ -191,8 +204,8 @@ class GUI_Detection(QDialog):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
-    # START VIDEO 0, VIDEO 1, and VIDEO 2 FRAMES AND DATA
     def start_video(self):
+        """ Start  video 0, video 1, and video 2 frames AND data """
         try:
             # HIDE/SHOW GUI ELEMENTS
             self.button_start.hide()
@@ -236,10 +249,9 @@ class GUI_Detection(QDialog):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
-    ####################################################################################################
-    #                                      update_frame(Video)
-    ####################################################################################################
     def update_frame(self, video):
+        """ Update frame for specific video """
+
         try:
             if (not self.v0.vidCap.isOpened() or not self.v1.vidCap.isOpened() or not self.v2.vidCap.isOpened()):
                 print("update_frame ... not opened")
@@ -257,8 +269,13 @@ class GUI_Detection(QDialog):
 
             print("update_frame ... v" + video.id + " opened and read")
 
-            # RETURN: new frame (opencv), new counter (int), each color points (xyz and deque),
-            # isDetected (boolean dictionary), and global_inches (int)
+            """ Detection
+                PARAMETERS: current frame (opencv), current counter (int), each color points (deque),
+                            detect_color (boolean from user selected checkbox), and global_inches (int)
+                            
+                RETURN: new frame (opencv), new counter (int), each color points (xyz and deque),
+                        isDetected (boolean dictionary), and global_inches (int)
+            """
             (video.frame, video.counter,
              video.red_xyz_pts, video.green_xyz_pts, video.blue_xyz_pts, video.yellow_xyz_pts,
              video.isDetected, self.global_inches) = \
@@ -267,8 +284,7 @@ class GUI_Detection(QDialog):
                                     video.blue_xyz_pts['pts'], video.yellow_xyz_pts['pts'],
                                     self.detect_red, self.detect_green, self.detect_blue, self.detect_yellow,
                                     self.global_inches)
-            # PASS in: current frame (opencv), current counter (int), each color points (deque),
-            # detect_color (boolean from user selected checkbox), and global_inches (int)
+
 
             # UPDATE DATA AND PLOTS, THEN DISPLAY FRAME
             self.update_data(video)
@@ -282,8 +298,8 @@ class GUI_Detection(QDialog):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
-    # UPDATE DATA FOR SPECIFIC VIDEO
     def update_data(self, video):
+        """ Update date for specific video """
         try:
             # CHECK IF A COLOR WAS DETECTED
             if (True in video.isDetected.values()):
@@ -299,9 +315,9 @@ class GUI_Detection(QDialog):
 
                 if (video.isDetected['green']):
                     if (len(video.green_xyz_pts['pts']) > MIN_NUM_POINTS):
-                        self.video.green['x'].append(video.green_xyz_pts['x'])
-                        self.video.green['y'].append(video.green_xyz_pts['y'])
-                        self.video.green['z'].append(video.green_xyz_pts['z'])
+                        video.green['x'].append(video.green_xyz_pts['x'])
+                        video.green['y'].append(video.green_xyz_pts['y'])
+                        video.green['z'].append(video.green_xyz_pts['z'])
                 else:
                     # CLEAR GREEN FOR JUST THIS VIDEO
                     self.clear(video, "green", False)
@@ -336,8 +352,8 @@ class GUI_Detection(QDialog):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
-    # UPDATE PLOT FOR SPECIFIC VIDEO
     def update_plot(self, video):
+        """ Update plot for specific video """
         try:
             video.plot.trace_red.setData(pos=np.vstack([video.red['x'], video.red['y'], video.red['z']]).transpose())
             video.plot.trace_green.setData(pos=np.vstack([video.green['x'], video.green['y'], video.green['z']]).transpose())
@@ -351,6 +367,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def display_frame(self, _frame, source, window=1):
+        """ Display frame for specific video """
         try:
             print("displaying")
             qformat = QImage.Format_RGB888
@@ -382,6 +399,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def localize(self):
+        """ Localization computation """
         try:
             print("Localizing...")
             #self.thread.acquire()    # lock thread until we fully complete localization computation
@@ -411,6 +429,13 @@ class GUI_Detection(QDialog):
                 self.global_yellow['y'].append(self.global_yellow_xyz_pts['y'])
                 self.global_yellow['z'].append(self.global_yellow_xyz_pts['z'])
 
+            # Compute current date and time and insert into database
+            date = str(datetime.now().date())
+            time = str(datetime.now().time())
+            self.db.insert(date, time,
+                           self.global_red_xyz_pts, self.global_green_xyz_pts,
+                           self.global_blue_xyz_pts, self.global_yellow_xyz_pts)
+
             self.plot_global.trace_red.setData(pos=np.vstack([self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
             self.plot_global.trace_green.setData(pos=np.vstack([self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
             self.plot_global.trace_blue.setData(pos=np.vstack([self.global_blue['x'],  self.global_blue['y'],  self.global_blue['z']]).transpose())
@@ -427,6 +452,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def stop_video(self):
+        """ Stop all video captures """
         try:
             print(" Stopping...")
             self.v0.vidCap.release()
@@ -440,6 +466,8 @@ class GUI_Detection(QDialog):
             self.v2.vidCap.release()
             self.v2.frame = None
             self.timer2.stop()
+
+            self.timerLocalize.stop()
 
             # HIDE/SHOW GUI ELEMENTS
             self.button_start.show()
@@ -460,10 +488,7 @@ class GUI_Detection(QDialog):
             print(e)
 
     def clear(self, video, color, mode):
-        """Clear given video
-        >>> clear(v0, )
-
-        """
+        """ Clear data for specific video or all videos"""
         print(" Clearing...")
         try:
             if (color == "all"):
