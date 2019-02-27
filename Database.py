@@ -17,8 +17,8 @@ class Database:
         self.mongo_connection = None
 
         # Amazon AWS S3 connection
-        self.s3_access_key_id = "AKIAJMJWXVM4HWJ3M7JA"
-        self.s3_secret_access_key = "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"
+        self.s3_access_key_id = ""
+        self.s3_secret_access_key = ""
         self.s3_bucket_name = "icy-objects"
         self.s3 = None
         # self.s3_connection = None
