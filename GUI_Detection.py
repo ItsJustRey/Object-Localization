@@ -429,12 +429,15 @@ class GUI_Detection(QDialog):
                 self.global_yellow['y'].append(self.global_yellow_xyz_pts['y'])
                 self.global_yellow['z'].append(self.global_yellow_xyz_pts['z'])
 
-            # Compute current date and time and insert into database
-            date = str(datetime.now().date())
-            time = str(datetime.now().time())
-            self.db.insert(date, time,
-                           self.global_red_xyz_pts, self.global_green_xyz_pts,
-                           self.global_blue_xyz_pts, self.global_yellow_xyz_pts)
+            # ONLY INSERT INTO DATABASE IF A BALL's POSITION WAS CALCULATED
+            if (self.global_red_xyz_pts['isCalculated'] or self.global_green_xyz_pts['isCalculated'] or
+                    self.global_blue_xyz_pts['isCalculated'] or self.global_yellow_xyz_pts['isCalculated']):
+                # Compute current date and time and insert into database
+                date = str(datetime.now().date())
+                time = str(datetime.now().time())
+                self.db.insert(date, time, self.v0.frame, self.v1.frame, self.v2.frame,
+                               self.global_red_xyz_pts, self.global_green_xyz_pts,
+                               self.global_blue_xyz_pts, self.global_yellow_xyz_pts)
 
             self.plot_global.trace_red.setData(pos=np.vstack([self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
             self.plot_global.trace_green.setData(pos=np.vstack([self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
