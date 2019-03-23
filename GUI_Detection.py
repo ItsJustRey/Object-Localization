@@ -50,6 +50,7 @@ class GUI_Detection(QDialog):
         self.button_start.clicked.connect(self.start_video)
         self.button_stop.clicked.connect(self.stop_video)
         self.button_clear.clicked.connect(lambda: self.clear("all", True, True, True))
+        self.button_search.clicked.connect(self.search)
 
         # DEFINE CHECK BOX EVENTS
         self.checkBox_red.stateChanged.connect(self.red_state_changed)
@@ -285,11 +286,11 @@ class GUI_Detection(QDialog):
                                     self.detect_red, self.detect_green, self.detect_blue, self.detect_yellow,
                                     self.global_inches)
 
-
             # UPDATE DATA AND PLOTS, THEN DISPLAY FRAME
             self.update_data(video)
             self.update_plot(video)
             self.display_frame(video.frame, int(video.id), 1)
+
             return
 
         except Exception as e:
@@ -433,15 +434,13 @@ class GUI_Detection(QDialog):
             if (self.global_red_xyz_pts['isCalculated'] or self.global_green_xyz_pts['isCalculated'] or
                     self.global_blue_xyz_pts['isCalculated'] or self.global_yellow_xyz_pts['isCalculated']):
                 # Compute current date and time and insert into database
-                date = str(datetime.now().strftime("%Y-%m-%d"))
-                time = str(datetime.now().strftime("%H:%M:%S:%f")[:-3])
-
+                #date = str(datetime.now().date())
+                #time = str(datetime.now().time())
+                date = datetime.now().strftime("%Y-%m-%d")
+                time = datetime.now().strftime("%H:%M:%S:%f")[:-3]
                 self.db.insert(date, time, self.v0.frame, self.v1.frame, self.v2.frame,
                                self.global_red_xyz_pts, self.global_green_xyz_pts,
                                self.global_blue_xyz_pts, self.global_yellow_xyz_pts)
-
-
-
 
             self.plot_global.trace_red.setData(pos=np.vstack([self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
             self.plot_global.trace_green.setData(pos=np.vstack([self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
@@ -462,6 +461,9 @@ class GUI_Detection(QDialog):
         """ Stop all video captures """
         try:
             print(" Stopping...")
+
+
+
             self.v0.vidCap.release()
             self.v0.frame = None
             self.timer0.stop()
@@ -485,9 +487,6 @@ class GUI_Detection(QDialog):
             self.comboBox_video2.show()
 
             self.clear(None, "all", True)
-
-            date = str(datetime.now())
-            self.db.get(False, False, True, False, date)
             return
 
 
@@ -503,6 +502,7 @@ class GUI_Detection(QDialog):
         try:
             if (color == "all"):
                 print(" Clearing All ...")
+
                 self.global_inches = 0
                 self.global_red = {'x': [], 'y': [], 'z': []}
                 self.global_green = {'x': [], 'y': [], 'z': []}
@@ -529,6 +529,18 @@ class GUI_Detection(QDialog):
                 # CLEAR SPECIFIC COLOR
                 video.clear(color)
             return
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+
+    def search(self):
+        """ Search for objects """
+        try:
+
+            self.db.get(False, False, False, True)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
