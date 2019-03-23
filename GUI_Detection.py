@@ -433,11 +433,15 @@ class GUI_Detection(QDialog):
             if (self.global_red_xyz_pts['isCalculated'] or self.global_green_xyz_pts['isCalculated'] or
                     self.global_blue_xyz_pts['isCalculated'] or self.global_yellow_xyz_pts['isCalculated']):
                 # Compute current date and time and insert into database
-                date = str(datetime.now().date())
-                time = str(datetime.now().time())
+                date = str(datetime.now().strftime("%Y-%m-%d"))
+                time = str(datetime.now().strftime("%H:%M:%S:%f")[:-3])
+
                 self.db.insert(date, time, self.v0.frame, self.v1.frame, self.v2.frame,
                                self.global_red_xyz_pts, self.global_green_xyz_pts,
                                self.global_blue_xyz_pts, self.global_yellow_xyz_pts)
+
+
+
 
             self.plot_global.trace_red.setData(pos=np.vstack([self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
             self.plot_global.trace_green.setData(pos=np.vstack([self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
@@ -481,6 +485,9 @@ class GUI_Detection(QDialog):
             self.comboBox_video2.show()
 
             self.clear(None, "all", True)
+
+            date = str(datetime.now())
+            self.db.get(False, False, True, False, date)
             return
 
 
