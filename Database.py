@@ -29,13 +29,13 @@ class Database:
     def __init__(self):
 
         # MongoDB connection
-        self.mongo_uri = ""
+        self.mongo_uri = "mongodb://icy_admin:Scrollaz2019!@icy0-shard-00-00-bkuxh.mongodb.net:27017,icy0-shard-00-01-bkuxh.mongodb.net:27017,icy0-shard-00-02-bkuxh.mongodb.net:27017/test?ssl=true&replicaSet=ICY0-shard-0&authSource=admin&retryWrites=true"
         self.mongo_connection = None
 
         # Amazon AWS S3 connection
-        self.s3_access_key_id = ""
-        self.s3_secret_access_key = ""
-        self.s3_bucket_name = ""
+        self.s3_access_key_id = "AKIAIH3CH4G6LHZGCEPQ"
+        self.s3_secret_access_key = "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"
+        self.s3_bucket_name = "icy-objects"
         self.s3 = None
 
 
@@ -108,7 +108,7 @@ class Database:
 
 
 
-    def get(self, isRedDetected, isGreenDetected, isBlueDetected, isYellowDetected, dateTimeFrom, dateTimeTo):
+    def get(self, isRedDetected, isGreenDetected, isBlueDetected, isYellowDetected, dateTimeFrom, dateTimeTo, videoName):
 
         global _global_points_red
         global _global_points_green
@@ -211,7 +211,7 @@ class Database:
 
             _frame_0_key['key'] = _frame_0
 
-            self.create_video()
+            self.create_video(videoName)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -221,7 +221,7 @@ class Database:
 
 
 
-    def create_video(self):
+    def create_video(self, videoName):
         img_array = []
         for filename in glob.glob((VIDEO_NEW_PATH + '*.jpg')):
             img = cv2.imread(filename)
@@ -229,7 +229,7 @@ class Database:
             size = (width,height)
             img_array.append(img)
 
-        out = cv2.VideoWriter(VIDEO_PATH + 'project.avi',cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
+        out = cv2.VideoWriter(VIDEO_PATH + videoName + '.avi',cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
 
         for i in range(len(img_array)):
             out.write(img_array[i])

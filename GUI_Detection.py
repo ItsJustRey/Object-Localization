@@ -53,7 +53,9 @@ class GUI_Detection(QDialog):
         self.button_search.clicked.connect(lambda:  self.db.get(self.searchRed, self.searchGreen,
                                                                 self.searchBlue, self.searchYellow,
                                                                 self.get_dateTimeEdit_searchFrom(),
-                                                                self.get_dateTimeEdit_searchTo()))
+                                                                self.get_dateTimeEdit_searchTo(),
+                                                                self.textEdit_searchVideoName.toPlainText()))
+
 
         # DATE/TIME PICKERS
         # get current date and time

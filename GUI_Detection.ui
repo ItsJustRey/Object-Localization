@@ -55,6 +55,20 @@
      </property>
      <item>
       <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="4">
+        <widget class="QLabel" name="label_2">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>From</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="button_stop">
          <property name="sizePolicy">
@@ -138,23 +152,6 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        <item row="0" column="5">
         <widget class="QDateTimeEdit" name="dateTimeEdit_searchFrom"/>
        </item>
-       <item row="1" column="5">
-        <widget class="QDateTimeEdit" name="dateTimeEdit_searchTo"/>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="label_2">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>From</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="4">
         <widget class="QLabel" name="label_3">
          <property name="font">
@@ -166,6 +163,45 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
          </property>
          <property name="text">
           <string>To</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QDateTimeEdit" name="dateTimeEdit_searchTo"/>
+       </item>
+       <item row="2" column="5">
+        <widget class="QTextEdit" name="textEdit_searchVideoName">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>500</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>25</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4">
+        <widget class="QLabel" name="label_5">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>File Name:</string>
          </property>
         </widget>
        </item>
