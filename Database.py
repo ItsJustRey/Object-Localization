@@ -29,13 +29,13 @@ class Database:
     def __init__(self):
 
         # MongoDB connection
-        self.mongo_uri = "mongodb://icy_admin:Scrollaz2019!@icy0-shard-00-00-bkuxh.mongodb.net:27017,icy0-shard-00-01-bkuxh.mongodb.net:27017,icy0-shard-00-02-bkuxh.mongodb.net:27017/test?ssl=true&replicaSet=ICY0-shard-0&authSource=admin&retryWrites=true"
+        self.mongo_uri = ""
         self.mongo_connection = None
 
         # Amazon AWS S3 connection
-        self.s3_access_key_id = "AKIAIH3CH4G6LHZGCEPQ"
-        self.s3_secret_access_key = "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"
-        self.s3_bucket_name = "icy-objects"
+        self.s3_access_key_id = ""
+        self.s3_secret_access_key = ""
+        self.s3_bucket_name = ""
         self.s3 = None
 
 
