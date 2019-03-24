@@ -23,6 +23,7 @@ import Localization
 import threading
 import datetime
 from datetime import datetime
+
 MIN_NUM_POINTS = 10
 
 
@@ -50,12 +51,11 @@ class GUI_Detection(QDialog):
         self.button_start.clicked.connect(self.start_video)
         self.button_stop.clicked.connect(self.stop_video)
         self.button_clear.clicked.connect(lambda: self.clear("all", True, True, True))
-        self.button_search.clicked.connect(lambda:  self.db.get(self.searchRed, self.searchGreen,
-                                                                self.searchBlue, self.searchYellow,
-                                                                self.get_dateTimeEdit_searchFrom(),
-                                                                self.get_dateTimeEdit_searchTo(),
-                                                                self.textEdit_searchVideoName.toPlainText()))
-
+        self.button_search.clicked.connect(lambda: self.db.get(self.searchRed, self.searchGreen,
+                                                               self.searchBlue, self.searchYellow,
+                                                               self.get_dateTimeEdit_searchFrom(),
+                                                               self.get_dateTimeEdit_searchTo(),
+                                                               self.textEdit_searchVideoName.toPlainText()))
 
         # DATE/TIME PICKERS
         # get current date and time
@@ -64,13 +64,11 @@ class GUI_Detection(QDialog):
         self.dateTimeEdit_searchTo.setDateTime(now)
         print(now)
 
-
         # DEFINE CHECK BOX EVENTS
         self.checkBox_red.stateChanged.connect(self.red_state_changed)
         self.checkBox_green.stateChanged.connect(self.green_state_changed)
         self.checkBox_blue.stateChanged.connect(self.blue_state_changed)
         self.checkBox_yellow.stateChanged.connect(self.yellow_state_changed)
-
 
         self.checkBox_searchRed.stateChanged.connect(self.searchRed_state_changed)
         self.checkBox_searchGreen.stateChanged.connect(self.searchGreen_state_changed)
@@ -95,8 +93,6 @@ class GUI_Detection(QDialog):
         self.checkBox_searchGreen.setChecked(self.searchGreen)
         self.checkBox_searchBlue.setChecked(self.searchBlue)
         self.checkBox_searchYellow.setChecked(self.searchYellow)
-
-
 
         # 3D PLOT FOR LOCALIZATION DATA
         self.plot_global = OL_3D_Plot(self)
@@ -153,6 +149,7 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
+
     def green_state_changed(self):
         """ Monitor when Green checkbox is checked/unchecked """
         try:
@@ -166,6 +163,7 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
+
     def blue_state_changed(self):
         """ Monitor when Blue checkbox is checked/unchecked """
         try:
@@ -179,6 +177,7 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
+
     def yellow_state_changed(self):
         """ Monitor when Yellow checkbox is checked/unchecked """
         try:
@@ -206,6 +205,7 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
+
     def searchGreen_state_changed(self):
         """ Monitor when search green checkbox is checked/unchecked """
         try:
@@ -219,6 +219,7 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
+
     def searchBlue_state_changed(self):
         """ Monitor when search blue checkbox is checked/unchecked """
         try:
@@ -232,6 +233,7 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
+
     def searchYellow_state_changed(self):
         """ Monitor when search yellow checkbox is checked/unchecked """
         try:
@@ -239,6 +241,7 @@ class GUI_Detection(QDialog):
                 self.searchYellow = True
             else:
                 self.searchYellow = False
+
             return
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -250,7 +253,8 @@ class GUI_Detection(QDialog):
         """ Monitor when video0 source comboBox is changed """
         try:
             self.VIDEO_SOURCE_0 = self.comboBox_video0.currentText()
-            if (self.VIDEO_SOURCE_0 == '0' or self.VIDEO_SOURCE_0 == '1' or self.VIDEO_SOURCE_0 == '2' or self.VIDEO_SOURCE_0 == '3'):
+            if (
+                    self.VIDEO_SOURCE_0 == '0' or self.VIDEO_SOURCE_0 == '1' or self.VIDEO_SOURCE_0 == '2' or self.VIDEO_SOURCE_0 == '3'):
                 self.VIDEO_SOURCE_0 = int(self.VIDEO_SOURCE_0)
             return
         except Exception as e:
@@ -263,7 +267,8 @@ class GUI_Detection(QDialog):
         """ Monitor when video1 source comboBox is changed """
         try:
             self.VIDEO_SOURCE_1 = self.comboBox_video1.currentText()
-            if (self.VIDEO_SOURCE_1 == '0' or self.VIDEO_SOURCE_1 == '1' or self.VIDEO_SOURCE_1 == '2' or self.VIDEO_SOURCE_1 == '3'):
+            if (
+                    self.VIDEO_SOURCE_1 == '0' or self.VIDEO_SOURCE_1 == '1' or self.VIDEO_SOURCE_1 == '2' or self.VIDEO_SOURCE_1 == '3'):
                 self.VIDEO_SOURCE_1 = int(self.VIDEO_SOURCE_1)
             return
         except Exception as e:
@@ -276,7 +281,8 @@ class GUI_Detection(QDialog):
         """ Monitor when video2 source comboBox is changed """
         try:
             self.VIDEO_SOURCE_2 = self.comboBox_video2.currentText()
-            if(self.VIDEO_SOURCE_2 == '0' or self.VIDEO_SOURCE_2 == '1' or self.VIDEO_SOURCE_2 == '2' or self.VIDEO_SOURCE_2 == '3'):
+            if (
+                    self.VIDEO_SOURCE_2 == '0' or self.VIDEO_SOURCE_2 == '1' or self.VIDEO_SOURCE_2 == '2' or self.VIDEO_SOURCE_2 == '3'):
                 self.VIDEO_SOURCE_2 = int(self.VIDEO_SOURCE_2)
             return
         except Exception as e:
@@ -284,7 +290,6 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
-
 
     def get_dateTimeEdit_searchFrom(self):
         try:
@@ -298,7 +303,7 @@ class GUI_Detection(QDialog):
             if (day < 10):
                 day = "0" + str(day)
 
-            searchFrom = "{year}-{month}-{day}".format(year = str(year), month = str(month), day = str(day))
+            searchFrom = "{year}-{month}-{day}".format(year=str(year), month=str(month), day=str(day))
 
             return searchFrom
 
@@ -308,20 +313,19 @@ class GUI_Detection(QDialog):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
-
     def get_dateTimeEdit_searchTo(self):
         try:
-            year =  self.dateTimeEdit_searchTo.date().year()
+            year = self.dateTimeEdit_searchTo.date().year()
 
-            month =  self.dateTimeEdit_searchTo.date().month()
-            if(month < 10):
+            month = self.dateTimeEdit_searchTo.date().month()
+            if (month < 10):
                 month = "0" + str(month)
 
             day = self.dateTimeEdit_searchTo.date().day()
             if (day < 10):
                 day = "0" + str(day)
 
-            searchTo = "{year}-{month}-{day}".format(year = str(year), month = str(month), day = str(day))
+            searchTo = "{year}-{month}-{day}".format(year=str(year), month=str(month), day=str(day))
 
             return searchTo
         except Exception as e:
@@ -329,7 +333,6 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
-
 
     def start_video(self):
         """ Start  video 0, video 1, and video 2 frames AND data """
@@ -399,7 +402,7 @@ class GUI_Detection(QDialog):
             """ Detection
                 PARAMETERS: current frame (opencv), current counter (int), each color points (deque),
                             detect_color (boolean from user selected checkbox), and global_inches (int)
-                            
+
                 RETURN: new frame (opencv), new counter (int), each color points (xyz and deque),
                         isDetected (boolean dictionary), and global_inches (int)
             """
@@ -411,7 +414,6 @@ class GUI_Detection(QDialog):
                                     video.blue_xyz_pts['pts'], video.yellow_xyz_pts['pts'],
                                     self.detect_red, self.detect_green, self.detect_blue, self.detect_yellow,
                                     self.global_inches)
-
 
             # UPDATE DATA AND PLOTS, THEN DISPLAY FRAME
             self.update_data(video)
@@ -483,9 +485,12 @@ class GUI_Detection(QDialog):
         """ Update plot for specific video """
         try:
             video.plot.trace_red.setData(pos=np.vstack([video.red['x'], video.red['y'], video.red['z']]).transpose())
-            video.plot.trace_green.setData(pos=np.vstack([video.green['x'], video.green['y'], video.green['z']]).transpose())
-            video.plot.trace_blue.setData(pos=np.vstack([video.blue['x'], video.blue['y'], video.blue['z']]).transpose())
-            video.plot.trace_yellow.setData(pos=np.vstack([video.yellow['x'], video.yellow['y'], video.yellow['z']]).transpose())
+            video.plot.trace_green.setData(
+                pos=np.vstack([video.green['x'], video.green['y'], video.green['z']]).transpose())
+            video.plot.trace_blue.setData(
+                pos=np.vstack([video.blue['x'], video.blue['y'], video.blue['z']]).transpose())
+            video.plot.trace_yellow.setData(
+                pos=np.vstack([video.yellow['x'], video.yellow['y'], video.yellow['z']]).transpose())
             return
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -529,12 +534,12 @@ class GUI_Detection(QDialog):
         """ Localization computation """
         try:
             print("Localizing...")
-            #self.thread.acquire()    # lock thread until we fully complete localization computation
-            (self.global_red_xyz_pts, self.global_green_xyz_pts,self.global_blue_xyz_pts, self.global_yellow_xyz_pts) = \
+            # self.thread.acquire()    # lock thread until we fully complete localization computation
+            (self.global_red_xyz_pts, self.global_green_xyz_pts, self.global_blue_xyz_pts, self.global_yellow_xyz_pts) = \
                 Localization.Localization(self.v0, self.v1, self.v2, self.global_inches)
 
             print(self.global_yellow_xyz_pts)
-            #if(self.global_red_xyz_pts is not None):
+            # if(self.global_red_xyz_pts is not None):
             if (self.global_red_xyz_pts['isCalculated']):
                 self.global_red['x'].append(self.global_red_xyz_pts['x'])
                 self.global_red['y'].append(self.global_red_xyz_pts['y'])
@@ -567,16 +572,16 @@ class GUI_Detection(QDialog):
                                self.global_red_xyz_pts, self.global_green_xyz_pts,
                                self.global_blue_xyz_pts, self.global_yellow_xyz_pts)
 
+            self.plot_global.trace_red.setData(
+                pos=np.vstack([self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
+            self.plot_global.trace_green.setData(
+                pos=np.vstack([self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
+            self.plot_global.trace_blue.setData(
+                pos=np.vstack([self.global_blue['x'], self.global_blue['y'], self.global_blue['z']]).transpose())
+            self.plot_global.trace_yellow.setData(
+                pos=np.vstack([self.global_yellow['x'], self.global_yellow['y'], self.global_yellow['z']]).transpose())
 
-
-
-            self.plot_global.trace_red.setData(pos=np.vstack([self.global_red['x'], self.global_red['y'], self.global_red['z']]).transpose())
-            self.plot_global.trace_green.setData(pos=np.vstack([self.global_green['x'], self.global_green['y'], self.global_green['z']]).transpose())
-            self.plot_global.trace_blue.setData(pos=np.vstack([self.global_blue['x'],  self.global_blue['y'],  self.global_blue['z']]).transpose())
-            self.plot_global.trace_yellow.setData(pos=np.vstack([self.global_yellow['x'], self.global_yellow['y'], self.global_yellow['z']]).transpose())
-
-
-            #self.thread.release() # release the lock on the thread
+            # self.thread.release() # release the lock on the thread
             return
 
         except Exception as e:
