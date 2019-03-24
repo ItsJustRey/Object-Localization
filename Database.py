@@ -9,7 +9,11 @@ import re
 from bson import Binary
 from PIL import Image
 import glob
+import os
+import shutil
 
+VIDEO_PATH = "./videos/"
+VIDEO_NEW_PATH = "./videos/new/"
 
 class Database:
 
@@ -25,15 +29,14 @@ class Database:
     def __init__(self):
 
         # MongoDB connection
-        self.mongo_uri = "mongodb://icy_admin:Scrollaz2019!@icy0-shard-00-00-bkuxh.mongodb.net:27017,icy0-shard-00-01-bkuxh.mongodb.net:27017,icy0-shard-00-02-bkuxh.mongodb.net:27017/test?ssl=true&replicaSet=ICY0-shard-0&authSource=admin&retryWrites=true"
+        self.mongo_uri = ""
         self.mongo_connection = None
 
         # Amazon AWS S3 connection
         self.s3_access_key_id = ""
         self.s3_secret_access_key = ""
-        self.s3_bucket_name = "icy-objects"
+        self.s3_bucket_name = ""
         self.s3 = None
-        # self.s3_connection = None
 
 
     def connect(self):
@@ -105,7 +108,7 @@ class Database:
 
 
 
-    def get(self, isRedDetected, isGreenDetected, isBlueDetected, isYellowDetected, date):
+    def get(self, isRedDetected, isGreenDetected, isBlueDetected, isYellowDetected, dateTimeFrom, dateTimeTo):
 
         global _global_points_red
         global _global_points_green
@@ -139,9 +142,9 @@ class Database:
 
 
         try:
-
+            print("date inside get(): " + dateTimeFrom)
             values = {
-                "date": "2019-03-01",
+                "date": dateTimeFrom,
                 "red.isCalculated": isRedDetected,
                 "green.isCalculated": isGreenDetected,
                 "blue.isCalculated": isBlueDetected,
@@ -150,14 +153,17 @@ class Database:
 
             cursor= self.mongo_connection.objects.balls.find(values)
 
-            for result_object in cursor:
+            # make directory if it doesn't exist
+            if not os.path.exists(VIDEO_NEW_PATH):
+                os.makedirs(VIDEO_NEW_PATH)
 
+            for result_object in cursor:
 
                 try:
                     num= int(str_n)+1
                     str_n = str(num)
                     str_n = str_n + ".jpg"
-                    self.s3.Bucket(self.s3_bucket_name).download_file(result_object["frame0"], str_n)
+                    self.s3.Bucket(self.s3_bucket_name).download_file(result_object["frame0"], (VIDEO_NEW_PATH + str_n))
                     str_n = str_n.replace(".jpg","")
                     print("Downloading "+str_n+".jpg")
 
@@ -217,18 +223,23 @@ class Database:
 
     def create_video(self):
         img_array = []
-        for filename in glob.glob("C:/Users/rishi/PycharmProjects/Object-Localization_2019/*.jpg"):
+        for filename in glob.glob((VIDEO_NEW_PATH + '*.jpg')):
             img = cv2.imread(filename)
             height, width, layers = img.shape
             size = (width,height)
             img_array.append(img)
 
-        out = cv2.VideoWriter('project.avi',cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
+        out = cv2.VideoWriter(VIDEO_PATH + 'project.avi',cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
 
         for i in range(len(img_array)):
             out.write(img_array[i])
         out.release()
         print("Video Creation Completed")
+
+        try:
+            shutil.rmtree(VIDEO_NEW_PATH, ignore_errors=True)
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
 
         # def s3_get(self,key):
         #     try:

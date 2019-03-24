@@ -50,12 +50,30 @@ class GUI_Detection(QDialog):
         self.button_start.clicked.connect(self.start_video)
         self.button_stop.clicked.connect(self.stop_video)
         self.button_clear.clicked.connect(lambda: self.clear("all", True, True, True))
+        self.button_search.clicked.connect(lambda:  self.db.get(self.searchRed, self.searchGreen,
+                                                                self.searchBlue, self.searchYellow,
+                                                                self.get_dateTimeEdit_searchFrom(),
+                                                                self.get_dateTimeEdit_searchTo()))
+
+        # DATE/TIME PICKERS
+        # get current date and time
+        now = QtCore.QDateTime.currentDateTime()
+        self.dateTimeEdit_searchFrom.setDateTime(now)
+        self.dateTimeEdit_searchTo.setDateTime(now)
+        print(now)
+
 
         # DEFINE CHECK BOX EVENTS
         self.checkBox_red.stateChanged.connect(self.red_state_changed)
         self.checkBox_green.stateChanged.connect(self.green_state_changed)
         self.checkBox_blue.stateChanged.connect(self.blue_state_changed)
         self.checkBox_yellow.stateChanged.connect(self.yellow_state_changed)
+
+
+        self.checkBox_searchRed.stateChanged.connect(self.searchRed_state_changed)
+        self.checkBox_searchGreen.stateChanged.connect(self.searchGreen_state_changed)
+        self.checkBox_searchBlue.stateChanged.connect(self.searchBlue_state_changed)
+        self.checkBox_searchYellow.stateChanged.connect(self.searchYellow_state_changed)
 
         # INITIALIZE CHECK BOX
         self.detect_red = False
@@ -66,6 +84,17 @@ class GUI_Detection(QDialog):
         self.checkBox_green.setChecked(self.detect_green)
         self.checkBox_blue.setChecked(self.detect_blue)
         self.checkBox_yellow.setChecked(self.detect_yellow)
+
+        self.searchRed = False
+        self.searchGreen = False
+        self.searchBlue = False
+        self.searchYellow = False
+        self.checkBox_searchRed.setChecked(self.searchRed)
+        self.checkBox_searchGreen.setChecked(self.searchGreen)
+        self.checkBox_searchBlue.setChecked(self.searchBlue)
+        self.checkBox_searchYellow.setChecked(self.searchYellow)
+
+
 
         # 3D PLOT FOR LOCALIZATION DATA
         self.plot_global = OL_3D_Plot(self)
@@ -122,7 +151,6 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
-
     def green_state_changed(self):
         """ Monitor when Green checkbox is checked/unchecked """
         try:
@@ -136,7 +164,6 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
-
     def blue_state_changed(self):
         """ Monitor when Blue checkbox is checked/unchecked """
         try:
@@ -150,7 +177,6 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
-
     def yellow_state_changed(self):
         """ Monitor when Yellow checkbox is checked/unchecked """
         try:
@@ -158,6 +184,59 @@ class GUI_Detection(QDialog):
                 self.detect_yellow = True
             else:
                 self.detect_yellow = False
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+
+    def searchRed_state_changed(self):
+        """ Monitor when search red checkbox is checked/unchecked """
+        try:
+            if self.checkBox_searchRed.isChecked():
+                self.searchRed = True
+            else:
+                self.searchRed = False
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+    def searchGreen_state_changed(self):
+        """ Monitor when search green checkbox is checked/unchecked """
+        try:
+            if self.checkBox_searchGreen.isChecked():
+                self.searchGreen = True
+            else:
+                self.searchGreen = False
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+    def searchBlue_state_changed(self):
+        """ Monitor when search blue checkbox is checked/unchecked """
+        try:
+            if self.checkBox_searchBlue.isChecked():
+                self.searchBlue = True
+            else:
+                self.searchBlue = False
+            return
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+    def searchYellow_state_changed(self):
+        """ Monitor when search yellow checkbox is checked/unchecked """
+        try:
+            if self.checkBox_searchYellow.isChecked():
+                self.searchYellow = True
+            else:
+                self.searchYellow = False
             return
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -203,6 +282,52 @@ class GUI_Detection(QDialog):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
+
+
+    def get_dateTimeEdit_searchFrom(self):
+        try:
+            year = self.dateTimeEdit_searchFrom.date().year()
+
+            month = self.dateTimeEdit_searchFrom.date().month()
+            if (month < 10):
+                month = "0" + str(month)
+
+            day = self.dateTimeEdit_searchFrom.date().day()
+            if (day < 10):
+                day = "0" + str(day)
+
+            searchFrom = "{year}-{month}-{day}".format(year = str(year), month = str(month), day = str(day))
+
+            return searchFrom
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+
+
+    def get_dateTimeEdit_searchTo(self):
+        try:
+            year =  self.dateTimeEdit_searchTo.date().year()
+
+            month =  self.dateTimeEdit_searchTo.date().month()
+            if(month < 10):
+                month = "0" + str(month)
+
+            day = self.dateTimeEdit_searchTo.date().day()
+            if (day < 10):
+                day = "0" + str(day)
+
+            searchTo = "{year}-{month}-{day}".format(year = str(year), month = str(month), day = str(day))
+
+            return searchTo
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+
 
     def start_video(self):
         """ Start  video 0, video 1, and video 2 frames AND data """
@@ -486,8 +611,8 @@ class GUI_Detection(QDialog):
 
             self.clear(None, "all", True)
 
-            date = str(datetime.now())
-            self.db.get(False, False, True, False, date)
+            # date = str(datetime.now())
+            # self.db.get(False, False, True, False, date)
             return
 
 

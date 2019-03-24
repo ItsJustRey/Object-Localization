@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1425</width>
+    <width>1429</width>
     <height>863</height>
    </rect>
   </property>
@@ -88,6 +88,23 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
          </property>
         </spacer>
        </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="button_start">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(1, 194, 7);
+font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
+         </property>
+         <property name="text">
+          <string>Start</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="2">
         <widget class="QPushButton" name="button_clear">
          <property name="sizePolicy">
@@ -108,27 +125,47 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="button_start">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="0" column="7">
+        <widget class="QPushButton" name="button_search">
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(1, 194, 7);
-font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
+          <string notr="true">background-color: rgb(170, 255, 255);</string>
          </property>
          <property name="text">
-          <string>Start</string>
+          <string>Search</string>
          </property>
         </widget>
        </item>
+       <item row="0" column="5">
+        <widget class="QDateTimeEdit" name="dateTimeEdit_searchFrom"/>
+       </item>
+       <item row="1" column="5">
+        <widget class="QDateTimeEdit" name="dateTimeEdit_searchTo"/>
+       </item>
        <item row="0" column="4">
-        <widget class="QPushButton" name="button_search">
+        <widget class="QLabel" name="label_2">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
-          <string>Search</string>
+          <string>From</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>To</string>
          </property>
         </widget>
        </item>
@@ -164,7 +201,9 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        </property>
        <property name="font">
         <font>
-         <pointsize>11</pointsize>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -172,19 +211,19 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <widget class="QCheckBox" name="checkBox_yellow">
+     <item row="0" column="3">
+      <widget class="QCheckBox" name="checkBox_blue">
        <property name="maximumSize">
         <size>
-         <width>60</width>
+         <width>50</width>
          <height>16777215</height>
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 0);</string>
+        <string notr="true">color: rgb(0, 0, 255);</string>
        </property>
        <property name="text">
-        <string>Yellow</string>
+        <string>Blue</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -229,19 +268,19 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QCheckBox" name="checkBox_blue">
+     <item row="0" column="4">
+      <widget class="QCheckBox" name="checkBox_yellow">
        <property name="maximumSize">
         <size>
-         <width>50</width>
+         <width>60</width>
          <height>16777215</height>
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">color: rgb(0, 0, 255);</string>
+        <string notr="true">color: rgb(255, 255, 0);</string>
        </property>
        <property name="text">
-        <string>Blue</string>
+        <string>Yellow</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -260,6 +299,60 @@ font: 10pt &quot;Segoe MDL2 Assets&quot;;</string>
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="0" column="7">
+      <widget class="QCheckBox" name="checkBox_searchRed">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(255, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>Red</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="8">
+      <widget class="QCheckBox" name="checkBox_searchGreen">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(85, 255, 0);</string>
+       </property>
+       <property name="text">
+        <string>Green</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="6">
+      <widget class="QLabel" name="label_4">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Search Colors:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="9">
+      <widget class="QCheckBox" name="checkBox_searchBlue">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 255);</string>
+       </property>
+       <property name="text">
+        <string>Blue</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="10">
+      <widget class="QCheckBox" name="checkBox_searchYellow">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(255, 255, 0);</string>
+       </property>
+       <property name="text">
+        <string>Yellow</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
